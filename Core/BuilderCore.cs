@@ -64,12 +64,9 @@ namespace ClassBuilderGenerator.Core
         {
             string itemPath = Path.Combine(projectPath, itemName);
 
-            if(!File.Exists(itemPath))
+            using(var writer = new StreamWriter(itemPath, false))
             {
-                using(var writer = new StreamWriter(itemPath))
-                {
-                    writer.Write(content);
-                }
+                writer.Write(content);
             }
         }
 

@@ -6,7 +6,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 using System;
 using System.ComponentModel.Design;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -36,34 +38,8 @@ namespace ClassBuilderGenerator
             var menuCommandID = new CommandID(BuilderConstants.CommandSet, BuilderConstants.CommandId);
 
             var menuItem = new OleMenuCommand(this.Execute, menuCommandID);
-            menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
 
             commandService.AddCommand(menuItem);
-        }
-
-        private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if(sender is OleMenuCommand menuCommand)
-            {
-                menuCommand.Visible = false;
-                menuCommand.Enabled = false;
-
-                if(!ProjectHelper.IsSingleProjectItemSelection(out var hierarchy, out var itemid))
-                    return;
-
-                var vsProject = (IVsProject)hierarchy;
-
-                if(!ProjectHelper.ProjectSupportsBuilders(vsProject))
-                    return;
-
-                if(!ProjectHelper.ItemSupportsBuilders(vsProject, itemid))
-                    return;
-
-                menuCommand.Visible = true;
-                menuCommand.Enabled = true;
-            }
         }
 
         /// <summary>
@@ -78,7 +54,7 @@ namespace ClassBuilderGenerator
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider
+        private IServiceProvider ServiceProvider
         {
             get
             {
@@ -111,34 +87,117 @@ namespace ClassBuilderGenerator
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if(!ProjectHelper.IsSingleProjectItemSelection(out var hierarchy, out var itemid))
-                return;
-
-            var vsProject = (IVsProject)hierarchy;
-
-            if(!ProjectHelper.ProjectSupportsBuilders(vsProject))
-                return;
-
-            if(ErrorHandler.Failed(vsProject.GetMkDocument(VSConstants.VSITEMID_ROOT, out var projectFullPath)))
-                return;
-
-            if(!(vsProject is IVsBuildPropertyStorage))
-                return;
-
-            if(ErrorHandler.Failed(vsProject.GetMkDocument(itemid, out var itemFullPath)))
-                return;
-
-            var solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
-            int hr = solution.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hierarchy, 0);
-
-            if(hr < 0)
+            try
             {
-                throw new COMException(string.Format("Failed to add project item {0} {1}", itemFullPath, ProjectHelper.GetErrorInfo()), hr);
+                if(!ProjectHelper.IsSingleProjectItemSelection(out var hierarchy, out var itemid))
+                {
+                    VsShellUtilities.ShowMessageBox(
+                        this.package,
+                        "Please, select ONLY one class to create a builder!",
+                        "Error",
+                        OLEMSGICON.OLEMSGICON_CRITICAL,
+                        OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+
+                    return;
+                }
+
+                var vsProject = (IVsProject)hierarchy;
+
+                var projectExtension = ProjectHelper.ProjectSupportsBuilders(vsProject);
+
+                if(projectExtension == "err" || !string.IsNullOrEmpty(projectExtension))
+                {
+                    VsShellUtilities.ShowMessageBox(
+                        this.package,
+                        $"This project extension ({projectExtension}) is not supported, sorry!",
+                        "Error",
+                        OLEMSGICON.OLEMSGICON_CRITICAL,
+                        OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+
+                    return;
+                }
+
+                if(!ProjectHelper.ItemSupportsBuilders(vsProject, itemid))
+                {
+                    var error = new StringBuilder();
+
+                    error.AppendLine("There are some possible errors:")
+                        .AppendLine()
+                        .AppendLine("- You're trying to create a builder from a non CSharp (.cs) class")
+                        .AppendLine("- You're trying to create a builder from another builder");
+
+                    VsShellUtilities.ShowMessageBox(
+                        this.package,
+                        error.ToString(),
+                        "Error",
+                        OLEMSGICON.OLEMSGICON_CRITICAL,
+                        OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+
+                    return;
+                }
+
+                if(ErrorHandler.Failed(vsProject.GetMkDocument(VSConstants.VSITEMID_ROOT, out var projectFullPath)))
+                    return;
+
+                if(!(vsProject is IVsBuildPropertyStorage))
+                    return;
+
+                if(ErrorHandler.Failed(vsProject.GetMkDocument(itemid, out var itemFullPath)))
+                    return;
+
+                var solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
+                int hr = solution.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hierarchy, 0);
+
+                if(hr < 0)
+                {
+                    throw new COMException(string.Format("Failed to add project item {0} {1}", itemFullPath, ProjectHelper.GetErrorInfo()), hr);
+                }
+
+                var selectedProjectItem = ProjectHelper.GetProjectItemFromHierarchy(hierarchy, itemid);
+
+                var fullPath = Path.GetDirectoryName(itemFullPath);
+                var itemName = Path.GetFileNameWithoutExtension(itemFullPath);
+                var newItemFullPath = Path.Combine(fullPath, $"{itemName}Builder.cs");
+
+                if(File.Exists(newItemFullPath))
+                {
+                    IVsUIShell uiShell = (IVsUIShell)ServiceProvider.GetService(typeof(SVsUIShell));
+
+                    var message = new StringBuilder();
+
+                    message.Append("There is already a file in this directory called '").Append(itemName).AppendLine("Builder'.")
+                        .AppendLine()
+                        .AppendLine("Do you want to overwrite this file?");
+
+                    var result = VsShellUtilities.PromptYesNo(message.ToString(),
+                        "File already exists",
+                        OLEMSGICON.OLEMSGICON_QUERY,
+                        uiShell);
+
+                    if(!result)
+                        return;
+                }
+
+                BuilderCore.Generate(selectedProjectItem, hierarchy, itemFullPath);
+
+                var buildPropertyStorage = vsProject as IVsBuildPropertyStorage;
+
+                hierarchy.ParseCanonicalName(newItemFullPath, out var addedFileId);
+                buildPropertyStorage.SetItemAttribute(addedFileId, "IsBuilderFile", "True");
             }
-
-            var selectedProjectItem = ProjectHelper.GetProjectItemFromHierarchy(hierarchy, itemid);
-
-            BuilderCore.Generate(selectedProjectItem, hierarchy, itemFullPath);
+            catch(Exception ex)
+            {
+                VsShellUtilities.ShowMessageBox(
+                    this.package,
+                    ex.Message,
+                    "Error",
+                    OLEMSGICON.OLEMSGICON_CRITICAL,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            }
         }
     }
 }

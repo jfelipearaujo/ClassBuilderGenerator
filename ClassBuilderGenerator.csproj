@@ -59,6 +59,12 @@
     <Compile Include="Core\BuildHelper.cs" />
     <Compile Include="Core\ProjectHelper.cs" />
     <Compile Include="Core\StringHelper.cs" />
+    <Compile Include="Options\BaseOptionModel.cs" />
+    <Compile Include="Options\BaseOptionPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Options\DialogPageProvider.cs" />
+    <Compile Include="Options\GeneralOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

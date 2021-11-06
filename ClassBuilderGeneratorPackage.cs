@@ -1,17 +1,11 @@
-﻿using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.OLE.Interop;
+﻿using ClassBuilderGenerator.Options;
+
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.Win32;
 
 using System;
-using System.ComponentModel.Design;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -38,6 +32,7 @@ namespace ClassBuilderGenerator
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(ClassBuilderGeneratorPackage.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    [ProvideOptionPage(typeof(DialogPageProvider.General), "Class Builder Generator", "General", 0, 0, true)]
     public sealed class ClassBuilderGeneratorPackage : AsyncPackage
     {
         /// <summary>

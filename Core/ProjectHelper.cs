@@ -72,12 +72,12 @@ namespace ClassBuilderGenerator.Core
             }
         }
 
-        public static bool ProjectSupportsBuilders(IVsProject project)
+        public static string ProjectSupportsBuilders(IVsProject project)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             if(ErrorHandler.Failed(project.GetMkDocument(VSConstants.VSITEMID_ROOT, out var projectFullPath)))
-                return false;
+                return "err";
 
             string projectExtension = Path.GetExtension(projectFullPath);
 
@@ -85,11 +85,11 @@ namespace ClassBuilderGenerator.Core
             {
                 if(projectExtension.Equals(supportedExtension, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return true;
+                    return string.Empty;
                 }
             }
 
-            return false;
+            return projectExtension;
         }
 
         public static bool ItemSupportsBuilders(IVsProject project, uint itemid)
@@ -99,13 +99,12 @@ namespace ClassBuilderGenerator.Core
             if(ErrorHandler.Failed(project.GetMkDocument(itemid, out var itemFullPath)))
                 return false;
 
-            // make sure its not a transform file itsle
             bool isAlreadyBuilderFile = IsItemBuilderItem(project, itemid);
 
             var transformFileInfo = new FileInfo(itemFullPath);
             bool isCSharpFile = transformFileInfo.Name.EndsWith(".cs");
 
-            return (isCSharpFile && isAlreadyBuilderFile);
+            return (isCSharpFile && !isAlreadyBuilderFile);
         }
 
         public static bool IsItemBuilderItem(IVsProject vsProject, uint itemid)
@@ -122,20 +121,6 @@ namespace ClassBuilderGenerator.Core
             if(string.Compare("true", value, true) == 0)
                 isItemBuilderFile = true;
 
-            if(!isItemBuilderFile)
-            {
-                buildPropertyStorage.GetItemAttribute(itemid, "FullPath", out var filepath);
-
-                if(!string.IsNullOrEmpty(filepath))
-                {
-                    var fi = new FileInfo(filepath);
-
-                    if(fi.Name.EndsWith(".cs"))
-                    {
-                        isItemBuilderFile = true;
-                    }
-                }
-            }
             return isItemBuilderFile;
         }
 

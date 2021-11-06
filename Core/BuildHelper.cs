@@ -1,4 +1,6 @@
-﻿using EnvDTE;
+﻿using ClassBuilderGenerator.Options;
+
+using EnvDTE;
 
 using Microsoft.VisualStudio.Shell;
 
@@ -151,7 +153,7 @@ namespace ClassBuilderGenerator.Core
                     .AppendLine("}")
                     .AppendLine();
 
-                if(isPropGenericList)
+                if(isPropGenericList && GeneralOptions.Instance.GenerateListWithItemMethod)
                 {
                     var genericCollectionType = GetGenericCollectionType(propType);
 
