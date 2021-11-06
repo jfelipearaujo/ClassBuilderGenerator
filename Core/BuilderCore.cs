@@ -3,6 +3,7 @@
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -22,7 +23,17 @@ namespace ClassBuilderGenerator.Core
             {
                 var elt = elts.Item(i);
 
-                builderData = BuildData(elt, new BuilderData());
+                builderData = BuildData(elt, new BuilderData
+                {
+                    SubNamespaces = new List<string>
+                    {
+                        "System",
+                        "System.Collections.Generic",
+                        "System.Linq",
+                        "System.Text",
+                        "System.Threading.Tasks"
+                    }
+                });
 
                 if(builderData.BuilderName != null)
                 {
@@ -31,12 +42,6 @@ namespace ClassBuilderGenerator.Core
             }
 
             var builderContent = new StringBuilder();
-
-            builderContent.AppendLine("using System;");
-            builderContent.AppendLine("using System.Collections.Generic;");
-            builderContent.AppendLine("using System.Linq;");
-            builderContent.AppendLine("using System.Text;");
-            builderContent.AppendLine("using System.Threading.Tasks;");
 
             foreach(var subNamespace in builderData.SubNamespaces)
             {
