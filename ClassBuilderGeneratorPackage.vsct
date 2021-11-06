@@ -36,8 +36,8 @@
          group as the part of a menu contained between two lines. The parent of a group
          must be a menu. -->
     <Groups>
-      <Group guid="guidClassBuilderGeneratorPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      <Group guid="guidClassBuilderGeneratorPackageCmdSet" id="ClassBuilderGeneratorMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ITEMNODE"/>
       </Group>
     </Groups>
 
@@ -53,10 +53,12 @@
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
       <Button guid="guidClassBuilderGeneratorPackageCmdSet" id="ClassBuilderGeneratorId" priority="0x0100" type="Button">
-        <Parent guid="guidClassBuilderGeneratorPackageCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic1" />
+        <Parent guid="guidClassBuilderGeneratorPackageCmdSet" id="ClassBuilderGeneratorMenuGroup" />
+        <Icon guid="guidImages" id="bmpMainIcon" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
-          <ButtonText>Invoke ClassBuilderGenerator</ButtonText>
+          <ButtonText>Run Class Builder Generator</ButtonText>
+          <CommandName>ClassBuilderGeneratorId</CommandName>
         </Strings>
       </Button>
     </Buttons>
@@ -68,7 +70,7 @@
             bitmap strip containing the bitmaps and then there are the numeric ids of the elements used
             inside a button definition. An important aspect of this declaration is that the element id
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
-      <Bitmap guid="guidImages" href="Resources\ClassBuilderGenerator.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+      <Bitmap guid="guidImages" href="Resources\ClassBuilderGenerator.png" usedList="bmpMainIcon"/>
     </Bitmaps>
   </Commands>
 
@@ -78,17 +80,12 @@
 
     <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidClassBuilderGeneratorPackageCmdSet" value="{f0e84b49-6da3-4a14-8aea-77b443eed474}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="ClassBuilderGeneratorMenuGroup" value="0x1020" />
       <IDSymbol name="ClassBuilderGeneratorId" value="0x0100" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{a390966f-9a80-4a43-b1bc-e4c55123797c}" >
-      <IDSymbol name="bmpPic1" value="1" />
-      <IDSymbol name="bmpPic2" value="2" />
-      <IDSymbol name="bmpPicSearch" value="3" />
-      <IDSymbol name="bmpPicX" value="4" />
-      <IDSymbol name="bmpPicArrows" value="5" />
-      <IDSymbol name="bmpPicStrikethrough" value="6" />
+      <IDSymbol name="bmpMainIcon" value="1" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

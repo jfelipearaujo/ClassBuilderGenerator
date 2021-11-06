@@ -1,11 +1,12 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using ClassBuilderGenerator.Core;
+
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
 using System;
 using System.ComponentModel.Design;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -16,16 +17,6 @@ namespace ClassBuilderGenerator
     /// </summary>
     internal sealed class ClassBuilderGenerator
     {
-        /// <summary>
-        /// Command ID.
-        /// </summary>
-        public const int CommandId = 0x0100;
-
-        /// <summary>
-        /// Command menu group (command set GUID).
-        /// </summary>
-        public static readonly Guid CommandSet = new Guid("f0e84b49-6da3-4a14-8aea-77b443eed474");
-
         /// <summary>
         /// VS Package that provides this command, not null.
         /// </summary>
@@ -42,9 +33,37 @@ namespace ClassBuilderGenerator
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
-            var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new MenuCommand(this.Execute, menuCommandID);
+            var menuCommandID = new CommandID(BuilderConstants.CommandSet, BuilderConstants.CommandId);
+
+            var menuItem = new OleMenuCommand(this.Execute, menuCommandID);
+            menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
+
             commandService.AddCommand(menuItem);
+        }
+
+        private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if(sender is OleMenuCommand menuCommand)
+            {
+                menuCommand.Visible = false;
+                menuCommand.Enabled = false;
+
+                if(!ProjectHelper.IsSingleProjectItemSelection(out var hierarchy, out var itemid))
+                    return;
+
+                var vsProject = (IVsProject)hierarchy;
+
+                if(!ProjectHelper.ProjectSupportsBuilders(vsProject))
+                    return;
+
+                if(!ProjectHelper.ItemSupportsBuilders(vsProject, itemid))
+                    return;
+
+                menuCommand.Visible = true;
+                menuCommand.Enabled = true;
+            }
         }
 
         /// <summary>
@@ -91,17 +110,35 @@ namespace ClassBuilderGenerator
         private void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-            string title = "ClassBuilderGenerator";
 
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                this.package,
-                message,
-                title,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            if(!ProjectHelper.IsSingleProjectItemSelection(out var hierarchy, out var itemid))
+                return;
+
+            var vsProject = (IVsProject)hierarchy;
+
+            if(!ProjectHelper.ProjectSupportsBuilders(vsProject))
+                return;
+
+            if(ErrorHandler.Failed(vsProject.GetMkDocument(VSConstants.VSITEMID_ROOT, out var projectFullPath)))
+                return;
+
+            if(!(vsProject is IVsBuildPropertyStorage))
+                return;
+
+            if(ErrorHandler.Failed(vsProject.GetMkDocument(itemid, out var itemFullPath)))
+                return;
+
+            var solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
+            int hr = solution.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hierarchy, 0);
+
+            if(hr < 0)
+            {
+                throw new COMException(string.Format("Failed to add project item {0} {1}", itemFullPath, ProjectHelper.GetErrorInfo()), hr);
+            }
+
+            var selectedProjectItem = ProjectHelper.GetProjectItemFromHierarchy(hierarchy, itemid);
+
+            BuilderCore.Generate(selectedProjectItem, hierarchy, itemFullPath);
         }
     }
 }

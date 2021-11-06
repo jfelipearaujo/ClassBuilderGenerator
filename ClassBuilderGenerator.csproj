@@ -53,6 +53,12 @@
   <ItemGroup>
     <Compile Include="ClassBuilderGenerator.cs" />
     <Compile Include="ClassBuilderGeneratorPackage.cs" />
+    <Compile Include="Core\BuilderCore.cs" />
+    <Compile Include="Core\BuilderData.cs" />
+    <Compile Include="Core\BuilderConstants.cs" />
+    <Compile Include="Core\BuildHelper.cs" />
+    <Compile Include="Core\ProjectHelper.cs" />
+    <Compile Include="Core\StringHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -77,8 +83,14 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\ClassBuilderGenerator.png" />
-    <Content Include="Resources\ClassBuilderGeneratorPackage.ico" />
+    <Content Include="Resources\ClassBuilderGenerator.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Resources\ClassBuilderGeneratorPackage.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
