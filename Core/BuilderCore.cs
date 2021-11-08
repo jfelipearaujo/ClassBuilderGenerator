@@ -1,17 +1,21 @@
-﻿using EnvDTE;
+﻿using ClassBuilderGenerator.Forms;
+
+using EnvDTE;
 
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace ClassBuilderGenerator.Core
 {
     public static class BuilderCore
     {
-        public static void Generate(ProjectItem projectItem, IVsHierarchy hierarchy, string itemFullPath)
+        public static void Generate(ProjectItem projectItem, IVsHierarchy hierarchy, string itemFullPath, AsyncPackage package, IVsUIShell uiShell)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -33,7 +37,7 @@ namespace ClassBuilderGenerator.Core
                         "System.Text",
                         "System.Threading.Tasks"
                     }
-                });
+                }, package, uiShell);
 
                 if(builderData.BuilderName != null)
                 {
@@ -93,7 +97,7 @@ namespace ClassBuilderGenerator.Core
             addedItem.Properties.Item("ItemType").Value = "Compile";
         }
 
-        public static BuilderData BuildData(CodeElement elt, BuilderData builder)
+        private static BuilderData BuildData(CodeElement elt, BuilderData builder, AsyncPackage package, IVsUIShell uiShell)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -112,6 +116,45 @@ namespace ClassBuilderGenerator.Core
                     .AppendLine(builder.BuilderName)
                     .Append("\t")
                     .AppendLine("{");
+
+                CodeClass codeClass = elt as CodeClass;
+
+                for(int i = 1; i <= codeClass.Members.Count; i++)
+                {
+                    var subCodeElement = codeClass.Members.Item(i);
+
+                    if(subCodeElement.Name == elt.Name
+                        && subCodeElement.Kind == vsCMElement.vsCMElementFunction)
+                    {
+                        CodeFunction codeFunction = subCodeElement as CodeFunction;
+
+                        foreach(CodeFunction item in codeFunction.Overloads)
+                        {
+                            var constructor = item.get_Prototype((int)vsCMPrototype.vsCMPrototypeParamNames);
+
+                            if(!builder.Constructors.Contains(constructor))
+                            {
+                                builder.Constructors.Add(constructor);
+                            }
+                        }
+                    }
+                }
+
+                if(builder.Constructors.Count > 1)
+                {
+                    var frmConstructorSelector = new FrmConstructorSelector(package, uiShell, builder.Constructors)
+                    {
+                        StartPosition = FormStartPosition.CenterScreen
+                    };
+
+                    frmConstructorSelector.ShowDialog();
+
+                    builder.CustomConstructor = frmConstructorSelector.SelectedConstructor;
+                }
+                else if(builder.Constructors.Count == 1)
+                {
+                    builder.CustomConstructor = builder.Constructors.First();
+                }
 
                 CodeType ct = elt as CodeType;
 
@@ -184,23 +227,36 @@ namespace ClassBuilderGenerator.Core
                     .Append("\t")
                     .Append("\t")
                     .Append("\t")
-                    .Append("return new ")
-                    .AppendLine(builder.ReturnType)
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t")
-                    .AppendLine("{");
+                    .Append("return new ");
 
-                for(int i = 1; i <= ct.Members.Count; i++)
+                if(!string.IsNullOrEmpty(builder.CustomConstructor))
                 {
-                    BuildHelper.BuilConstructorProperties(mems.Item(i), builder);
+                    builder.BuilderBody
+                        .Append(builder.CustomConstructor)
+                        .AppendLine(";");
+                }
+                else
+                {
+                    builder.BuilderBody
+                        .AppendLine(builder.ReturnType)
+                        .Append("\t")
+                        .Append("\t")
+                        .Append("\t")
+                        .AppendLine("{");
+
+                    for(int i = 1; i <= ct.Members.Count; i++)
+                    {
+                        BuildHelper.BuilConstructorProperties(mems.Item(i), builder);
+                    }
+
+                    builder.BuilderBody
+                        .Append("\t")
+                        .Append("\t")
+                        .Append("\t")
+                        .AppendLine("};");
                 }
 
                 builder.BuilderBody
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t")
-                    .AppendLine("};")
                     .Append("\t")
                     .Append("\t")
                     .AppendLine("}")
@@ -221,7 +277,7 @@ namespace ClassBuilderGenerator.Core
 
                 for(int i = 1; i <= cns.Members.Count; i++)
                 {
-                    BuildData(mems_vb.Item(i), builder);
+                    BuildData(mems_vb.Item(i), builder, package, uiShell);
                 }
 
                 builder.BuilderBody.Append("}");

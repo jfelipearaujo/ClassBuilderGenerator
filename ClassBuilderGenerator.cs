@@ -162,10 +162,10 @@ namespace ClassBuilderGenerator
                 var itemName = Path.GetFileNameWithoutExtension(itemFullPath);
                 var newItemFullPath = Path.Combine(fullPath, $"{itemName}Builder.cs");
 
+                IVsUIShell uiShell = (IVsUIShell)ServiceProvider.GetService(typeof(SVsUIShell));
+
                 if(File.Exists(newItemFullPath))
                 {
-                    IVsUIShell uiShell = (IVsUIShell)ServiceProvider.GetService(typeof(SVsUIShell));
-
                     var message = new StringBuilder();
 
                     message.Append("There is already a file in this directory called '").Append(itemName).AppendLine("Builder'.")
@@ -181,7 +181,7 @@ namespace ClassBuilderGenerator
                         return;
                 }
 
-                BuilderCore.Generate(selectedProjectItem, hierarchy, itemFullPath);
+                BuilderCore.Generate(selectedProjectItem, hierarchy, itemFullPath, this.package, uiShell);
 
                 var buildPropertyStorage = vsProject as IVsBuildPropertyStorage;
 

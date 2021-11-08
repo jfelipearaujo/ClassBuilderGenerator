@@ -59,6 +59,12 @@
     <Compile Include="Core\BuildHelper.cs" />
     <Compile Include="Core\ProjectHelper.cs" />
     <Compile Include="Core\StringHelper.cs" />
+    <Compile Include="Forms\FrmConstructorSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmConstructorSelector.Designer.cs">
+      <DependentUpon>FrmConstructorSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="Options\BaseOptionModel.cs" />
     <Compile Include="Options\BaseOptionPage.cs">
       <SubType>Component</SubType>
@@ -83,6 +89,9 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\FrmConstructorSelector.resx">
+      <DependentUpon>FrmConstructorSelector.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
       <ManifestResourceName>VSPackage</ManifestResourceName>
