@@ -1,4 +1,5 @@
-﻿using ClassBuilderGenerator.Options;
+﻿using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Options;
 
 using Microsoft.VisualStudio.Shell;
 
@@ -32,7 +33,7 @@ namespace ClassBuilderGenerator
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(ClassBuilderGeneratorPackage.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    [ProvideOptionPage(typeof(DialogPageProvider.General), "Class Builder Generator", "General", 0, 0, true)]
+    [ProvideOptionPage(typeof(ClassBuilderGeneratorOptions), "Class Builder Generator", "General", 0, 0, true)]
     public sealed class ClassBuilderGeneratorPackage : AsyncPackage
     {
         /// <summary>
@@ -49,6 +50,24 @@ namespace ClassBuilderGenerator
             // any Visual Studio service because at this point the package object is created but
             // not sited yet inside Visual Studio environment. The place to do all the other
             // initialization is the Initialize method.
+        }
+
+        public MethodWithGenerator MethodWithGenerator
+        {
+            get
+            {
+                ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
+                return page.WithMethodGeneratorHandler;
+            }
+        }
+
+        public bool GenerateListWithItemMethod
+        {
+            get
+            {
+                ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
+                return page.GenerateListWithItemMethod;
+            }
         }
 
         #region Package Members

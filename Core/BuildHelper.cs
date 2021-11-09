@@ -1,4 +1,4 @@
-﻿using ClassBuilderGenerator.Options;
+﻿using ClassBuilderGenerator.Enums;
 
 using EnvDTE;
 
@@ -8,14 +8,19 @@ namespace ClassBuilderGenerator.Core
 {
     public static class BuildHelper
     {
-        public static void BuildPrivateProperties(CodeElement elt, BuilderData builder)
+        public static void BuildPrivateProperties(CodeElement elt, BuilderData builder, MethodWithGenerator methodWithGenerator)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             if(elt.Kind == vsCMElement.vsCMElementProperty)
             {
                 var prop = elt as CodeProperty;
+
+                if(prop.Access != vsCMAccess.vsCMAccessPublic)
+                    return;
+
                 var propType = prop.Type.AsString;
+                var propName = elt.Name.ToCamelCase();
 
                 var containNamespace = ContainNamespace(propType);
                 var isPropGenericList = IsPropGenericList(propType);
@@ -44,37 +49,53 @@ namespace ClassBuilderGenerator.Core
                     }
                 }
 
-                builder.BuilderBody
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("private ");
+                var addPropToBody = false;
 
-                if(isPropGenericList)
+                if(methodWithGenerator == MethodWithGenerator.GenerateAllProps
+                    || string.IsNullOrEmpty(builder.CustomConstructor))
                 {
-                    var genericCollectionType = GetGenericCollectionType(propType);
-                    var listObjectType = GetListObjectType(propType);
+                    addPropToBody = true;
+                }
+                else if(methodWithGenerator == MethodWithGenerator.PreferConstructorProps
+                    && builder.CustomConstructor.Contains(propName))
+                {
+                    addPropToBody = true;
+                }
+
+                if(addPropToBody)
+                {
+                    builder.BuilderBody
+                       .Append("\t")
+                       .Append("\t")
+                       .Append("private ");
+
+                    if(isPropGenericList)
+                    {
+                        var genericCollectionType = GetGenericCollectionType(propType);
+                        var listObjectType = GetListObjectType(propType);
+
+                        builder.BuilderBody
+                            .Append(genericCollectionType)
+                            .Append("<").Append(RemoveNamespace(listObjectType)).Append('>');
+                    }
+                    else if(containNamespace)
+                    {
+                        builder.BuilderBody.Append(RemoveNamespace(propType));
+                    }
+                    else
+                    {
+                        builder.BuilderBody.Append(propType);
+                    }
 
                     builder.BuilderBody
-                        .Append(genericCollectionType)
-                        .Append("<").Append(RemoveNamespace(listObjectType)).Append('>');
+                        .Append(" ")
+                        .Append(propName)
+                        .AppendLine(";");
                 }
-                else if(containNamespace)
-                {
-                    builder.BuilderBody.Append(RemoveNamespace(propType));
-                }
-                else
-                {
-                    builder.BuilderBody.Append(propType);
-                }
-
-                builder.BuilderBody
-                    .Append(" ")
-                    .Append(elt.Name.ToCamelCase())
-                    .AppendLine(";");
             }
         }
 
-        public static void BuildResetProperties(CodeElement elt, BuilderData builder)
+        public static void BuildResetProperties(CodeElement elt, BuilderData builder, MethodWithGenerator methodWithGenerator)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -82,81 +103,89 @@ namespace ClassBuilderGenerator.Core
             {
                 var prop = elt as CodeProperty;
 
-                builder.BuilderBody
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t")
-                    .Append(elt.Name.ToCamelCase())
-                    .Append(" = ")
-                    .Append(GetDefaultValueFromProperty(prop.Type))
-                    .AppendLine(";");
+                if(prop.Access != vsCMAccess.vsCMAccessPublic)
+                    return;
+
+                var propName = elt.Name.ToCamelCase();
+
+                switch(methodWithGenerator)
+                {
+                    case MethodWithGenerator.GenerateAllProps:
+                    {
+                        builder.BuilderBody
+                            .Append("\t")
+                            .Append("\t")
+                            .Append("\t")
+                            .Append(propName)
+                            .Append(" = ")
+                            .Append(GetDefaultValueFromProperty(prop.Type))
+                            .AppendLine(";");
+                    }
+                    break;
+                    case MethodWithGenerator.PreferConstructorProps:
+                    {
+                        if(string.IsNullOrEmpty(builder.CustomConstructor))
+                        {
+                            builder.BuilderBody
+                                .Append("\t")
+                                .Append("\t")
+                                .Append("\t")
+                                .Append(propName)
+                                .Append(" = ")
+                                .Append(GetDefaultValueFromProperty(prop.Type))
+                                .AppendLine(";");
+                        }
+                        else if(builder.CustomConstructor.Contains(propName))
+                        {
+                            builder.BuilderBody
+                                .Append("\t")
+                                .Append("\t")
+                                .Append("\t")
+                                .Append(propName)
+                                .Append(" = ")
+                                .Append(GetDefaultValueFromProperty(prop.Type))
+                                .AppendLine(";");
+                        }
+                    }
+                    break;
+                    default:
+                        break;
+                }
             }
         }
 
-        public static void BuildWithMethods(CodeElement elt, BuilderData builder)
+        public static void BuildWithMethods(CodeElement elt, BuilderData builder, bool generateListWithItemMethod, MethodWithGenerator methodWithGenerator)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             if(elt.Kind == vsCMElement.vsCMElementProperty)
             {
                 var prop = elt as CodeProperty;
+
+                if(prop.Access != vsCMAccess.vsCMAccessPublic)
+                    return;
+
                 var propType = prop.Type.AsString;
+                var propName = elt.Name.ToCamelCase();
 
                 var containNamespace = ContainNamespace(propType);
                 var isPropGenericList = IsPropGenericList(propType);
 
-                builder.BuilderBody
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("public ")
-                    .Append(builder.BuilderName)
-                    .Append(" With")
-                    .Append(elt.Name)
-                    .Append("(");
+                var addPropToBody = false;
 
-                if(isPropGenericList)
+                if(methodWithGenerator == MethodWithGenerator.GenerateAllProps
+                    || string.IsNullOrEmpty(builder.CustomConstructor))
                 {
-                    var listObjectType = GetListObjectType(propType);
-
-                    builder.BuilderBody.Append("List<").Append(RemoveNamespace(listObjectType)).Append('>');
+                    addPropToBody = true;
                 }
-                else if(containNamespace)
+                else if(methodWithGenerator == MethodWithGenerator.PreferConstructorProps
+                    && builder.CustomConstructor.Contains(propName))
                 {
-                    builder.BuilderBody.Append(RemoveNamespace(propType));
-                }
-                else
-                {
-                    builder.BuilderBody.Append(propType);
+                    addPropToBody = true;
                 }
 
-                builder.BuilderBody
-                    .Append(" ")
-                    .Append(elt.Name.ToCamelCase())
-                    .AppendLine(")")
-                    .Append("\t")
-                    .Append("\t")
-                    .AppendLine("{")
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("this.")
-                    .Append(elt.Name.ToCamelCase())
-                    .Append(" = ")
-                    .Append(elt.Name.ToCamelCase())
-                    .AppendLine(";")
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t")
-                    .AppendLine("return this;")
-                    .Append("\t")
-                    .Append("\t")
-                    .AppendLine("}")
-                    .AppendLine();
-
-                if(isPropGenericList && GeneralOptions.Instance.GenerateListWithItemMethod)
+                if(addPropToBody)
                 {
-                    var genericCollectionType = GetGenericCollectionType(propType);
-
                     builder.BuilderBody
                         .Append("\t")
                         .Append("\t")
@@ -164,32 +193,38 @@ namespace ClassBuilderGenerator.Core
                         .Append(builder.BuilderName)
                         .Append(" With")
                         .Append(elt.Name)
-                        .Append("Item(")
-                        .Append(RemoveNamespace(GetListObjectType(propType)))
-                        .AppendLine(" item)")
+                        .Append("(");
+
+                    if(isPropGenericList)
+                    {
+                        var listObjectType = GetListObjectType(propType);
+
+                        builder.BuilderBody.Append("List<").Append(RemoveNamespace(listObjectType)).Append('>');
+                    }
+                    else if(containNamespace)
+                    {
+                        builder.BuilderBody.Append(RemoveNamespace(propType));
+                    }
+                    else
+                    {
+                        builder.BuilderBody.Append(propType);
+                    }
+
+                    builder.BuilderBody
+                        .Append(" ")
+                        .Append(propName)
+                        .AppendLine(")")
                         .Append("\t")
                         .Append("\t")
                         .AppendLine("{")
                         .Append("\t")
                         .Append("\t")
-                        .Append("\t");
-
-                    if(genericCollectionType == "IEnumerable"
-                        || genericCollectionType == "Enumerable")
-                    {
-                        builder.BuilderBody
-                            .Append("Enumerable.Append(")
-                            .Append(elt.Name.ToCamelCase())
-                            .AppendLine(", item);");
-                    }
-                    else
-                    {
-                        builder.BuilderBody
-                            .Append(elt.Name.ToCamelCase())
-                            .AppendLine(".Add(item);");
-                    }
-
-                    builder.BuilderBody
+                        .Append("\t")
+                        .Append("this.")
+                        .Append(propName)
+                        .Append(" = ")
+                        .Append(propName)
+                        .AppendLine(";")
                         .Append("\t")
                         .Append("\t")
                         .Append("\t")
@@ -198,6 +233,53 @@ namespace ClassBuilderGenerator.Core
                         .Append("\t")
                         .AppendLine("}")
                         .AppendLine();
+
+                    if(isPropGenericList && generateListWithItemMethod)
+                    {
+                        var genericCollectionType = GetGenericCollectionType(propType);
+
+                        builder.BuilderBody
+                            .Append("\t")
+                            .Append("\t")
+                            .Append("public ")
+                            .Append(builder.BuilderName)
+                            .Append(" With")
+                            .Append(elt.Name)
+                            .Append("Item(")
+                            .Append(RemoveNamespace(GetListObjectType(propType)))
+                            .AppendLine(" item)")
+                            .Append("\t")
+                            .Append("\t")
+                            .AppendLine("{")
+                            .Append("\t")
+                            .Append("\t")
+                            .Append("\t");
+
+                        if(genericCollectionType == "IEnumerable"
+                            || genericCollectionType == "Enumerable")
+                        {
+                            builder.BuilderBody
+                                .Append("Enumerable.Append(")
+                                .Append(propName)
+                                .AppendLine(", item);");
+                        }
+                        else
+                        {
+                            builder.BuilderBody
+                                .Append(propName)
+                                .AppendLine(".Add(item);");
+                        }
+
+                        builder.BuilderBody
+                            .Append("\t")
+                            .Append("\t")
+                            .Append("\t")
+                            .AppendLine("return this;")
+                            .Append("\t")
+                            .Append("\t")
+                            .AppendLine("}")
+                            .AppendLine();
+                    }
                 }
             }
         }
@@ -208,6 +290,11 @@ namespace ClassBuilderGenerator.Core
 
             if(elt.Kind == vsCMElement.vsCMElementProperty)
             {
+                var prop = elt as CodeProperty;
+
+                if(prop.Access != vsCMAccess.vsCMAccessPublic)
+                    return;
+
                 builder.BuilderBody
                     .Append("\t")
                     .Append("\t")

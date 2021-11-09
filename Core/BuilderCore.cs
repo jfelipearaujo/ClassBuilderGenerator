@@ -1,4 +1,5 @@
-﻿using ClassBuilderGenerator.Forms;
+﻿using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Forms;
 
 using EnvDTE;
 
@@ -23,6 +24,11 @@ namespace ClassBuilderGenerator.Core
 
             var builderData = new BuilderData();
 
+            var options = package as ClassBuilderGeneratorPackage;
+
+            var generateListWithItemMethod = options.GenerateListWithItemMethod;
+            var methodWithGenerator = options.MethodWithGenerator;
+
             for(int i = 1; i <= projectItem.FileCodeModel.CodeElements.Count; i++)
             {
                 var elt = elts.Item(i);
@@ -37,7 +43,7 @@ namespace ClassBuilderGenerator.Core
                         "System.Text",
                         "System.Threading.Tasks"
                     }
-                }, package, uiShell);
+                }, package, uiShell, generateListWithItemMethod, methodWithGenerator);
 
                 if(builderData.BuilderName != null)
                 {
@@ -97,7 +103,9 @@ namespace ClassBuilderGenerator.Core
             addedItem.Properties.Item("ItemType").Value = "Compile";
         }
 
-        private static BuilderData BuildData(CodeElement elt, BuilderData builder, AsyncPackage package, IVsUIShell uiShell)
+        private static BuilderData BuildData(CodeElement elt,
+            BuilderData builder, AsyncPackage package, IVsUIShell uiShell,
+            bool generateListWithItemMethod, MethodWithGenerator methodWithGenerator)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -130,9 +138,10 @@ namespace ClassBuilderGenerator.Core
 
                         foreach(CodeFunction item in codeFunction.Overloads)
                         {
-                            var constructor = item.get_Prototype((int)vsCMPrototype.vsCMPrototypeParamNames);
+                            var constructor = item.get_Prototype((int)vsCMPrototype.vsCMPrototypeParamNames)
+                                .Replace(" (", "(");
 
-                            if(!builder.Constructors.Contains(constructor))
+                            if(!constructor.Contains("()") && !builder.Constructors.Contains(constructor))
                             {
                                 builder.Constructors.Add(constructor);
                             }
@@ -162,7 +171,7 @@ namespace ClassBuilderGenerator.Core
 
                 for(int i = 1; i <= ct.Members.Count; i++)
                 {
-                    BuildHelper.BuildPrivateProperties(mems.Item(i), builder);
+                    BuildHelper.BuildPrivateProperties(mems.Item(i), builder, methodWithGenerator);
                 }
 
                 builder.BuilderBody
@@ -196,7 +205,7 @@ namespace ClassBuilderGenerator.Core
 
                 for(int i = 1; i <= ct.Members.Count; i++)
                 {
-                    BuildHelper.BuildResetProperties(mems.Item(i), builder);
+                    BuildHelper.BuildResetProperties(mems.Item(i), builder, methodWithGenerator);
                 }
 
                 builder.BuilderBody
@@ -212,7 +221,7 @@ namespace ClassBuilderGenerator.Core
 
                 for(int i = 1; i <= ct.Members.Count; i++)
                 {
-                    BuildHelper.BuildWithMethods(mems.Item(i), builder);
+                    BuildHelper.BuildWithMethods(mems.Item(i), builder, generateListWithItemMethod, methodWithGenerator);
                 }
 
                 builder.BuilderBody
@@ -277,7 +286,7 @@ namespace ClassBuilderGenerator.Core
 
                 for(int i = 1; i <= cns.Members.Count; i++)
                 {
-                    BuildData(mems_vb.Item(i), builder, package, uiShell);
+                    BuildData(mems_vb.Item(i), builder, package, uiShell, generateListWithItemMethod, methodWithGenerator);
                 }
 
                 builder.BuilderBody.Append("}");

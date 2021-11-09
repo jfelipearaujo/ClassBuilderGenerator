@@ -6,9 +6,15 @@
         {
             if(!string.IsNullOrEmpty(str) && str.Length > 1)
             {
-                return char.ToLowerInvariant(str[0]) + str.Substring(1);
+                return AdjustIfIsReservedKeyword(char.ToLowerInvariant(str[0]) + str.Substring(1));
             }
-            return str;
+
+            return AdjustIfIsReservedKeyword(str);
+        }
+
+        private static string AdjustIfIsReservedKeyword(string propName)
+        {
+            return BuilderConstants.ReservedKeywords.Contains(propName) ? $"@{propName}" : propName;
         }
     }
 }
