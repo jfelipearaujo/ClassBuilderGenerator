@@ -1,5 +1,7 @@
 ﻿using ClassBuilderGenerator.Core;
 
+using EnvDTE;
+
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -7,6 +9,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -181,6 +184,12 @@ namespace ClassBuilderGenerator
                         return;
                 }
 
+                // ---
+                var classInformation = new ClassInformation();
+
+                CollectClassData(classInformation, selectedProjectItem);
+                // ---
+
                 BuilderCore.Generate(selectedProjectItem, hierarchy, itemFullPath, this.package, uiShell);
 
                 var buildPropertyStorage = vsProject as IVsBuildPropertyStorage;
@@ -197,6 +206,130 @@ namespace ClassBuilderGenerator
                     OLEMSGICON.OLEMSGICON_CRITICAL,
                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
                     OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            }
+        }
+
+        private void CollectClassData(ClassInformation classInformation, ProjectItem projectItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            CodeElements codeElements = projectItem.FileCodeModel.CodeElements;
+
+            for(int i = 1; i <= projectItem.FileCodeModel.CodeElements.Count; i++)
+            {
+                CodeElement codeElement = codeElements.Item(i);
+
+                if(codeElement.Kind == vsCMElement.vsCMElementNamespace)
+                {
+                    classInformation.Namespace = codeElement.Name;
+
+                    CodeNamespace codeNamespace = codeElement as CodeNamespace;
+
+                    CodeElements subCodeElements = codeNamespace.Members;
+
+                    for(int j = 1; j <= codeNamespace.Members.Count; j++)
+                    {
+                        codeElement = subCodeElements.Item(j);
+
+                        if(codeElement.IsCodeType && codeElement.Kind != vsCMElement.vsCMElementDelegate)
+                        {
+                            classInformation.Name = codeElement.Name;
+
+                            CodeClass codeClass = codeElement as CodeClass;
+
+                            for(int k = 1; k <= codeClass.Members.Count; k++)
+                            {
+                                CodeElement subCodeElement = codeClass.Members.Item(k);
+
+                                // Collect constructor data
+                                if(subCodeElement.Name == classInformation.Name
+                                    && subCodeElement.Kind == vsCMElement.vsCMElementFunction)
+                                {
+                                    CodeFunction codeFunction = subCodeElement as CodeFunction;
+
+                                    foreach(CodeFunction item in codeFunction.Overloads)
+                                    {
+                                        var constructor = item.get_Prototype((int)vsCMPrototype.vsCMPrototypeParamNames)
+                                            .Replace(" (", "(");
+
+                                        var constructorProperties = item.get_Prototype((int)(vsCMPrototype.vsCMPrototypeParamTypes
+                                            | vsCMPrototype.vsCMPrototypeParamNames))
+                                            .Replace(" (", "(");
+
+                                        if(!constructor.Contains("()") && !classInformation.Constructors.ContainsKey(constructor))
+                                        {
+                                            var properties = constructorProperties
+                                                .Replace($"{classInformation.Name}(", string.Empty)
+                                                .Replace(")", string.Empty)
+                                                .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                                .Select(x => new PropertyInformation
+                                                {
+                                                    Type = x.TrimStart().Split(' ')[0],
+                                                    Name = x.TrimStart().Split(' ')[1]
+                                                });
+
+                                            classInformation.Constructors.Add(constructor, properties);
+                                        }
+                                    }
+                                }
+                            }
+
+                            CodeType codeType = codeElement as CodeType;
+
+                            CodeElements codeTypeCodeElements = codeType.Members;
+
+                            for(int l = 1; l <= codeType.Members.Count; l++)
+                            {
+                                CodeElement codeTypeCodeElement = codeTypeCodeElements.Item(l);
+
+                                if(codeTypeCodeElement.Kind != vsCMElement.vsCMElementProperty)
+                                    continue;
+
+                                var property = codeTypeCodeElement as CodeProperty;
+
+                                if(property.Access != vsCMAccess.vsCMAccessPublic)
+                                    continue;
+
+                                var propertyInfo = new PropertyInformation
+                                {
+                                    Type = property.Type.AsString,
+                                    Name = property.Name.ToCamelCase()
+                                };
+
+                                classInformation.Properties.Add(propertyInfo);
+
+                                // check if its a List property
+                                if(propertyInfo.Type.Contains("System.Collections.Generic"))
+                                {
+                                    var start = propertyInfo.Type.IndexOf("<") + 1;
+                                    var end = propertyInfo.Type.LastIndexOf(">");
+                                    var subPropType = propertyInfo.Type.Substring(start, end - start);
+
+                                    // Check if have a namespace
+                                    if(subPropType.Contains("."))
+                                    {
+                                        var propUsing = subPropType.Substring(0, subPropType.LastIndexOf("."));
+
+                                        if(!classInformation.Usings.Contains(propUsing))
+                                        {
+                                            classInformation.Usings.Add(propUsing);
+                                        }
+                                    }
+                                }
+                                // Check if have a namespace
+                                else if(propertyInfo.Type.Contains("."))
+                                {
+                                    var propUsing = propertyInfo.Type.Substring(0, propertyInfo.Type.LastIndexOf("."));
+
+                                    if(!classInformation.Usings.Contains(propUsing))
+                                    {
+                                        classInformation.Usings.Add(propUsing);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
