@@ -58,9 +58,16 @@
     <Compile Include="Core\BuilderConstants.cs" />
     <Compile Include="Core\BuildHelper.cs" />
     <Compile Include="Core\ClassInformation.cs" />
+    <Compile Include="Core\CustomConstructor.cs" />
     <Compile Include="Core\ProjectHelper.cs" />
     <Compile Include="Core\PropertyInformation.cs" />
     <Compile Include="Core\StringHelper.cs" />
+    <Compile Include="Forms\FrmMissingProperty.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmMissingProperty.Designer.cs">
+      <DependentUpon>FrmMissingProperty.cs</DependentUpon>
+    </Compile>
     <Compile Include="Options\ClassBuilderGeneratorOptions.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -91,6 +98,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\FrmConstructorSelector.resx">
       <DependentUpon>FrmConstructorSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmMissingProperty.resx">
+      <DependentUpon>FrmMissingProperty.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
