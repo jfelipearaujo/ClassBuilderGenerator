@@ -52,6 +52,15 @@ namespace ClassBuilderGenerator
             // initialization is the Initialize method.
         }
 
+        public bool GenerateListWithItemMethod
+        {
+            get
+            {
+                ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
+                return page.GenerateListWithItemMethod;
+            }
+        }
+
         public MethodWithGenerator MethodWithGenerator
         {
             get
@@ -61,12 +70,12 @@ namespace ClassBuilderGenerator
             }
         }
 
-        public bool GenerateListWithItemMethod
+        public MissingProperties MissingProperties
         {
             get
             {
                 ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
-                return page.GenerateListWithItemMethod;
+                return page.MissingProperties;
             }
         }
 

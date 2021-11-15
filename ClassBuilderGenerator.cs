@@ -190,15 +190,16 @@ namespace ClassBuilderGenerator
                         return;
                 }
 
-                var builderContent = new StringBuilder();
-                var classInformation = new ClassInformation();
-
-                CollectClassData(classInformation, selectedProjectItem, uiShell);
-
                 var options = package as ClassBuilderGeneratorPackage;
 
                 var generateListWithItemMethod = options.GenerateListWithItemMethod;
                 var methodWithGenerator = options.MethodWithGenerator;
+                var missingPropertiesBehavior = options.MissingProperties;
+
+                var builderContent = new StringBuilder();
+                var classInformation = new ClassInformation();
+
+                CollectClassData(classInformation, selectedProjectItem, uiShell, missingPropertiesBehavior);
 
                 GenerateBuilder(classInformation, builderContent, generateListWithItemMethod, methodWithGenerator);
 
@@ -222,7 +223,10 @@ namespace ClassBuilderGenerator
             }
         }
 
-        private void CollectClassData(ClassInformation classInformation, ProjectItem projectItem, IVsUIShell uiShell)
+        private void CollectClassData(ClassInformation classInformation,
+            ProjectItem projectItem,
+            IVsUIShell uiShell,
+            MissingProperties missingPropertiesBehavior)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -416,7 +420,8 @@ namespace ClassBuilderGenerator
                     }
                 }
 
-                if(missingProperties.Any())
+                if(missingProperties.Any()
+                    && missingPropertiesBehavior == MissingProperties.AlwaysAskWhatToDo)
                 {
                     var frmMissingProperty = new FrmMissingProperty(classInformation.CustomConstructor,
                         missingProperties)
@@ -428,7 +433,40 @@ namespace ClassBuilderGenerator
 
                     if(frmMissingProperty.ForceCreatingOfMissingProperties)
                     {
-                        classInformation.Properties.AddRange(frmMissingProperty.SelectedProperties);
+                        classInformation.Properties.AddRange(frmMissingProperty.MissingProperties);
+                    }
+                }
+                else if(missingProperties.Any()
+                    && missingPropertiesBehavior == MissingProperties.AlwaysForceCreationOfMissingProperties)
+                {
+                    foreach(var propertyInfo in missingProperties)
+                    {
+                        if(propertyInfo.Type.Contains("System.Collections.Generic"))
+                        {
+                            propertyInfo.Type = propertyInfo.Type
+                                .Replace("System.Collections.Generic.", string.Empty);
+
+                            var start = propertyInfo.Type.IndexOf("<") + 1;
+                            var end = propertyInfo.Type.LastIndexOf(">");
+                            var subPropType = propertyInfo.Type.Substring(start, end - start);
+
+                            if(subPropType.Contains("."))
+                            {
+                                var subListObject = subPropType.Substring(subPropType.LastIndexOf(".") + 1);
+
+                                var collectionType = propertyInfo.Type
+                                    .Substring(0, propertyInfo.Type.IndexOf("<"));
+
+                                propertyInfo.Type = $"{collectionType}<{subListObject}>";
+                            }
+                        }
+                        else if(propertyInfo.Type.Contains("."))
+                        {
+                            propertyInfo.Type = propertyInfo.Type
+                                .Substring(propertyInfo.Type.LastIndexOf(".") + 1);
+                        }
+
+                        classInformation.Properties.Add(propertyInfo);
                     }
                 }
             }

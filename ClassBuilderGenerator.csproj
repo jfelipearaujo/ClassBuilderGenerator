@@ -62,6 +62,7 @@
     <Compile Include="Core\ProjectHelper.cs" />
     <Compile Include="Core\PropertyInformation.cs" />
     <Compile Include="Core\StringHelper.cs" />
+    <Compile Include="Enums\MissingProperties.cs" />
     <Compile Include="Forms\FrmMissingProperty.cs">
       <SubType>Form</SubType>
     </Compile>

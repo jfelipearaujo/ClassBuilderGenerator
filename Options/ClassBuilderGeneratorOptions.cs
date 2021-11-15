@@ -20,5 +20,12 @@ namespace ClassBuilderGenerator.Options
         [DefaultValue(MethodWithGenerator.GenerateAllProps)]
         [TypeConverter(typeof(EnumConverter))]
         public MethodWithGenerator WithMethodGeneratorHandler { get; set; } = MethodWithGenerator.GenerateAllProps;
+
+        [Category("Generator")]
+        [DisplayName("Behavior for missing properties")]
+        [Description("This option configure the behavior when missing properties are detected")]
+        [DefaultValue(MissingProperties.AlwaysAskWhatToDo)]
+        [TypeConverter(typeof(EnumConverter))]
+        public MissingProperties MissingProperties { get; set; } = MissingProperties.AlwaysAskWhatToDo;
     }
 }
