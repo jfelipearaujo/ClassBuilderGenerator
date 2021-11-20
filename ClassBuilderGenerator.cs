@@ -281,7 +281,7 @@ namespace ClassBuilderGenerator
                                                 .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                                                 .Select(x => new PropertyInformation
                                                 {
-                                                    Type = x.TrimStart().Split(' ')[0].RemoveNamespace(),
+                                                    Type = x.TrimStart().Split(' ')[0].RemoveNamespace(classInformation),
                                                     Name = x.TrimStart().Split(' ')[1]
                                                 });
 
@@ -309,7 +309,7 @@ namespace ClassBuilderGenerator
 
                                 classInformation.Properties.Add(new PropertyInformation
                                 {
-                                    Type = property.Type.AsString.RemoveNamespace(),
+                                    Type = property.Type.AsString.RemoveNamespace(classInformation),
                                     Name = property.Name.ToCamelCase()
                                 });
                             }
