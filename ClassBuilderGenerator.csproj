@@ -53,10 +53,8 @@
   <ItemGroup>
     <Compile Include="ClassBuilderGenerator.cs" />
     <Compile Include="ClassBuilderGeneratorPackage.cs" />
-    <Compile Include="Core\BuilderCore.cs" />
     <Compile Include="Core\BuilderData.cs" />
     <Compile Include="Core\BuilderConstants.cs" />
-    <Compile Include="Core\BuildHelper.cs" />
     <Compile Include="Core\ClassInformation.cs" />
     <Compile Include="Core\CustomConstructor.cs" />
     <Compile Include="Core\ProjectHelper.cs" />

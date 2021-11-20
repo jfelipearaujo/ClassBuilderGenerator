@@ -281,7 +281,7 @@ namespace ClassBuilderGenerator
                                                 .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                                                 .Select(x => new PropertyInformation
                                                 {
-                                                    Type = x.TrimStart().Split(' ')[0],
+                                                    Type = x.TrimStart().Split(' ')[0].RemoveNamespace(),
                                                     Name = x.TrimStart().Split(' ')[1]
                                                 });
 
@@ -307,76 +307,11 @@ namespace ClassBuilderGenerator
                                 if(property.Access != vsCMAccess.vsCMAccessPublic)
                                     continue;
 
-                                var propertyInfo = new PropertyInformation
+                                classInformation.Properties.Add(new PropertyInformation
                                 {
-                                    Type = property.Type.AsString,
+                                    Type = property.Type.AsString.RemoveNamespace(),
                                     Name = property.Name.ToCamelCase()
-                                };
-
-                                var isCollectionProperty = false;
-                                var isCustomObjectNamespace = false;
-
-                                // check if its a List property
-                                if(propertyInfo.Type.Contains("System.Collections.Generic"))
-                                {
-                                    isCollectionProperty = true;
-
-                                    var start = propertyInfo.Type.IndexOf("<") + 1;
-                                    var end = propertyInfo.Type.LastIndexOf(">");
-                                    var subPropType = propertyInfo.Type.Substring(start, end - start);
-
-                                    // Check if have a namespace
-                                    if(subPropType.Contains("."))
-                                    {
-                                        isCustomObjectNamespace = true;
-
-                                        var propUsing = subPropType.Substring(0, subPropType.LastIndexOf("."));
-
-                                        if(!classInformation.Usings.Contains(propUsing))
-                                        {
-                                            classInformation.Usings.Add(propUsing);
-                                        }
-                                    }
-                                }
-                                // Check if have a namespace
-                                else if(propertyInfo.Type.Contains("."))
-                                {
-                                    isCustomObjectNamespace = true;
-
-                                    var propUsing = propertyInfo.Type.Substring(0, propertyInfo.Type.LastIndexOf("."));
-
-                                    if(!classInformation.Usings.Contains(propUsing))
-                                    {
-                                        classInformation.Usings.Add(propUsing);
-                                    }
-                                }
-
-                                if(isCollectionProperty)
-                                {
-                                    propertyInfo.Type = propertyInfo.Type
-                                        .Replace("System.Collections.Generic.", string.Empty);
-
-                                    if(isCustomObjectNamespace)
-                                    {
-                                        var start = propertyInfo.Type.IndexOf("<") + 1;
-                                        var end = propertyInfo.Type.LastIndexOf(">");
-                                        var subListObject = propertyInfo.Type.Substring(start, end - start);
-
-                                        subListObject = subListObject.Substring(subListObject.LastIndexOf(".") + 1);
-
-                                        var collectionType = propertyInfo.Type
-                                            .Substring(0, propertyInfo.Type.IndexOf("<"));
-
-                                        propertyInfo.Type = $"{collectionType}<{subListObject}>";
-                                    }
-                                }
-                                else if(isCustomObjectNamespace)
-                                {
-                                    propertyInfo.Type = propertyInfo.Type
-                                        .Substring(propertyInfo.Type.LastIndexOf(".") + 1);
-                                }
-
-                                classInformation.Properties.Add(propertyInfo);
+                                });
                             }
                         }
                     }
@@ -439,35 +374,7 @@ namespace ClassBuilderGenerator
                 else if(missingProperties.Any()
                     && missingPropertiesBehavior == MissingProperties.AlwaysForceCreationOfMissingProperties)
                 {
-                    foreach(var propertyInfo in missingProperties)
-                    {
-                        if(propertyInfo.Type.Contains("System.Collections.Generic"))
-                        {
-                            propertyInfo.Type = propertyInfo.Type
-                                .Replace("System.Collections.Generic.", string.Empty);
-
-                            var start = propertyInfo.Type.IndexOf("<") + 1;
-                            var end = propertyInfo.Type.LastIndexOf(">");
-                            var subPropType = propertyInfo.Type.Substring(start, end - start);
-
-                            if(subPropType.Contains("."))
-                            {
-                                var subListObject = subPropType.Substring(subPropType.LastIndexOf(".") + 1);
-
-                                var collectionType = propertyInfo.Type
-                                    .Substring(0, propertyInfo.Type.IndexOf("<"));
-
-                                propertyInfo.Type = $"{collectionType}<{subListObject}>";
-                            }
-                        }
-                        else if(propertyInfo.Type.Contains("."))
-                        {
-                            propertyInfo.Type = propertyInfo.Type
-                                .Substring(propertyInfo.Type.LastIndexOf(".") + 1);
-                        }
-
-                        classInformation.Properties.Add(propertyInfo);
-                    }
+                    classInformation.Properties.AddRange(missingProperties);
                 }
             }
         }
@@ -489,11 +396,15 @@ namespace ClassBuilderGenerator
 
             #region Class header
             builderContent
-                    .Append("\t")
-                    .Append("public class ")
-                    .AppendLine(classInformation.BuilderName)
-                    .Append("\t")
-                    .AppendLine("{");
+                .Append("namespace ")
+                .Append(classInformation.Namespace)
+                .AppendLine()
+                .AppendLine("{")
+                .Append("\t")
+                .Append("public class ")
+                .AppendLine(classInformation.BuilderName)
+                .Append("\t")
+                .AppendLine("{");
             #endregion
 
             #region Private properties
@@ -807,7 +718,8 @@ namespace ClassBuilderGenerator
                 .Append("\t")
                 .AppendLine("}")
                 .Append("\t")
-                .AppendLine("}");
+                .AppendLine("}")
+                .Append("}");
             #endregion
         }
 
