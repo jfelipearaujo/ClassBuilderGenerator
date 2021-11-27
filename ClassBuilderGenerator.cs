@@ -195,13 +195,14 @@ namespace ClassBuilderGenerator
                 var generateListWithItemMethod = options.GenerateListWithItemMethod;
                 var methodWithGenerator = options.MethodWithGenerator;
                 var missingPropertiesBehavior = options.MissingProperties;
+                var generateSummaryInformation = options.GenerateSummaryInformation;
 
                 var builderContent = new StringBuilder();
                 var classInformation = new ClassInformation();
 
                 CollectClassData(classInformation, selectedProjectItem, uiShell, missingPropertiesBehavior);
 
-                GenerateBuilder(classInformation, builderContent, generateListWithItemMethod, methodWithGenerator);
+                GenerateBuilder(classInformation, builderContent, generateListWithItemMethod, methodWithGenerator, generateSummaryInformation);
 
                 AddBuilderFile(builderContent.ToString(), itemBuilderName, itemFolder);
                 AddBuilderToSolution(selectedProjectItem.ContainingProject, itemBuilderName, itemFolder, hierarchy);
@@ -282,7 +283,7 @@ namespace ClassBuilderGenerator
                                                 .Select(x => new PropertyInformation
                                                 {
                                                     Type = x.TrimStart().Split(' ')[0].RemoveNamespace(classInformation),
-                                                    Name = x.TrimStart().Split(' ')[1]
+                                                    OriginalName = x.TrimStart().Split(' ')[1]
                                                 });
 
                                             classInformation.Constructors.Add(constructor, properties);
@@ -310,7 +311,7 @@ namespace ClassBuilderGenerator
                                 classInformation.Properties.Add(new PropertyInformation
                                 {
                                     Type = property.Type.AsString.RemoveNamespace(classInformation),
-                                    Name = property.Name.ToCamelCase()
+                                    OriginalName = property.Name
                                 });
                             }
                         }
@@ -349,7 +350,7 @@ namespace ClassBuilderGenerator
 
                 foreach(var item in classInformation.CustomConstructor.Properties)
                 {
-                    if(!classInformation.Properties.Any(x => x.Name == item.Name && x.Type == item.Type))
+                    if(!classInformation.Properties.Any(x => x.OriginalName == item.OriginalName && x.Type == item.Type))
                     {
                         missingProperties.Add(item);
                     }
@@ -382,7 +383,8 @@ namespace ClassBuilderGenerator
         private void GenerateBuilder(ClassInformation classInformation,
             StringBuilder builderContent,
             bool generateListWithItemMethod,
-            MethodWithGenerator methodWithGenerator)
+            MethodWithGenerator methodWithGenerator,
+            bool generateSummaryInformation)
         {
             #region Usings
             foreach(var item in classInformation.Usings)
@@ -400,6 +402,7 @@ namespace ClassBuilderGenerator
                 .Append(classInformation.Namespace)
                 .AppendLine()
                 .AppendLine("{")
+                .AddClassSummary(generateSummaryInformation, classInformation)
                 .Append("\t")
                 .Append("public class ")
                 .AppendLine(classInformation.BuilderName)
@@ -418,7 +421,7 @@ namespace ClassBuilderGenerator
                         .Append("private ")
                         .Append(item.Type)
                         .Append(" ")
-                        .Append(item.Name)
+                        .Append(item.OriginalNameInCamelCase)
                         .AppendLine(";");
                 }
                 else
@@ -434,7 +437,8 @@ namespace ClassBuilderGenerator
                         {
                             // Check if each property is used in the selected constructor
                             if(classInformation.CustomConstructor.Properties
-                                .Any(x => x.Name == item.Name))
+                                .Any(x => x.OriginalName == item.OriginalName
+                                    || x.OriginalNameInCamelCase == item.OriginalNameInCamelCase))
                             {
                                 addPropertyToBuilder = true;
                             }
@@ -450,7 +454,7 @@ namespace ClassBuilderGenerator
                             .Append("private ")
                             .Append(item.Type)
                             .Append(" ")
-                            .Append(item.Name)
+                            .Append(item.OriginalNameInCamelCase)
                             .AppendLine(";");
                     }
                 }
@@ -460,6 +464,7 @@ namespace ClassBuilderGenerator
             #region Constructor
             builderContent
                     .AppendLine()
+                    .AddBuilderConstructorSummary(generateSummaryInformation, classInformation)
                     .Append("\t")
                     .Append("\t")
                     .Append("public ")
@@ -480,6 +485,7 @@ namespace ClassBuilderGenerator
             #region Reset method
             builderContent
                 .AppendLine()
+                .AddResetSummary(generateSummaryInformation, classInformation)
                 .Append("\t")
                 .Append("\t")
                 .Append("public ")
@@ -502,7 +508,8 @@ namespace ClassBuilderGenerator
                     {
                         // Check if each property is used in the selected constructor
                         if(classInformation.CustomConstructor.Properties
-                            .Any(x => x.Name == item.Name))
+                            .Any(x => x.OriginalName == item.OriginalName
+                                || x.OriginalNameInCamelCase == item.OriginalNameInCamelCase))
                         {
                             addResetProperty = true;
                         }
@@ -516,7 +523,7 @@ namespace ClassBuilderGenerator
                         .Append("\t")
                         .Append("\t")
                         .Append("\t")
-                        .Append(item.Name)
+                        .Append(item.OriginalNameInCamelCase)
                         .Append(" = ");
 
                     if(item.Type.Contains("List"))
@@ -560,7 +567,8 @@ namespace ClassBuilderGenerator
                     case MethodWithGenerator.PreferConstructorProps:
                         // Check if each property is used in the selected constructor
                         if(classInformation.CustomConstructor.Properties
-                            .Any(x => x.Name == item.Name))
+                            .Any(x => x.OriginalName == item.OriginalName
+                                || x.OriginalNameInCamelCase == item.OriginalNameInCamelCase))
                         {
                             addMethodWith = true;
                         }
@@ -570,16 +578,17 @@ namespace ClassBuilderGenerator
                 if(addMethodWith)
                 {
                     builderContent
+                        .AddWithSummary(generateSummaryInformation, classInformation, item)
                         .Append("\t")
                         .Append("\t")
                         .Append("public ")
                         .Append(classInformation.BuilderName)
                         .Append(" With")
-                        .Append(item.Name.ToTitleCase())
+                        .Append(item.OriginalName.ToTitleCase())
                         .Append("(")
                         .Append(item.Type)
                         .Append(" ")
-                        .Append(item.Name)
+                        .Append(item.OriginalNameInCamelCase)
                         .AppendLine(")")
                         .Append("\t")
                         .Append("\t")
@@ -588,9 +597,9 @@ namespace ClassBuilderGenerator
                         .Append("\t")
                         .Append("\t")
                         .Append("this.")
-                        .Append(item.Name)
+                        .Append(item.OriginalNameInCamelCase)
                         .Append(" = ")
-                        .Append(item.Name)
+                        .Append(item.OriginalNameInCamelCase)
                         .AppendLine(";")
                         .Append("\t")
                         .Append("\t")
@@ -604,7 +613,8 @@ namespace ClassBuilderGenerator
                     #region With Method for list item
                     if(generateListWithItemMethod && (item.Type.Contains("List")
                             || item.Type.Contains("IEnumerable")
-                            || item.Type.Contains("Enumerable")))
+                            || item.Type.Contains("Enumerable")
+                            || item.Type.Contains("ICollection")))
                     {
                         var start = item.Type.IndexOf("<") + 1;
                         var end = item.Type.LastIndexOf(">");
@@ -617,12 +627,13 @@ namespace ClassBuilderGenerator
                         }
 
                         builderContent
+                            .AddWithCollectionItemSummary(generateSummaryInformation, classInformation, item, subListObject)
                             .Append("\t")
                             .Append("\t")
                             .Append("public ")
                             .Append(classInformation.BuilderName)
                             .Append(" With")
-                            .Append(item.Name.ToTitleCase())
+                            .Append(item.OriginalName.ToTitleCase())
                             .Append("Item(")
                             .Append(subListObject)
                             .AppendLine(" item)")
@@ -638,13 +649,13 @@ namespace ClassBuilderGenerator
                         {
                             builderContent
                                 .Append("Enumerable.Append(")
-                                .Append(item.Name)
+                                .Append(item.OriginalNameInCamelCase)
                                 .AppendLine(", item);");
                         }
                         else
                         {
                             builderContent
-                                .Append(item.Name)
+                                .Append(item.OriginalNameInCamelCase)
                                 .AppendLine(".Add(item);");
                         }
 
@@ -665,6 +676,7 @@ namespace ClassBuilderGenerator
 
             #region Build method
             builderContent
+                .AddBuildSummary(generateSummaryInformation, classInformation)
                 .Append("\t")
                 .Append("\t")
                 .Append("public ")
@@ -681,7 +693,7 @@ namespace ClassBuilderGenerator
             if(classInformation.CustomConstructor == null)
             {
                 builderContent
-                    .Append(classInformation.Name)
+                    .AppendLine(classInformation.Name)
                     .Append("\t")
                     .Append("\t")
                     .Append("\t")
@@ -694,9 +706,9 @@ namespace ClassBuilderGenerator
                         .Append("\t")
                         .Append("\t")
                         .Append("\t")
-                        .Append(item.Name.ToTitleCase())
+                        .Append(item.OriginalName)
                         .Append(" = ")
-                        .Append(item.Name)
+                        .Append(item.OriginalNameInCamelCase)
                         .AppendLine(",");
                 }
 

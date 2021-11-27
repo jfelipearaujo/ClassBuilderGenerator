@@ -79,6 +79,15 @@ namespace ClassBuilderGenerator
             }
         }
 
+        public bool GenerateSummaryInformation
+        {
+            get
+            {
+                ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
+                return page.GenerateSummaryInformation;
+            }
+        }
+
         #region Package Members
 
         /// <summary>

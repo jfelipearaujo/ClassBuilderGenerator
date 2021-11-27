@@ -21,7 +21,7 @@ namespace ClassBuilderGenerator.Forms
 
             missingProperties.ForEach((x) =>
             {
-                lbMissingProperties.Items.Add($"{x.Type} {x.Name}");
+                lbMissingProperties.Items.Add($"{x.Type} {x.OriginalName}");
             });
         }
 
@@ -38,7 +38,7 @@ namespace ClassBuilderGenerator.Forms
                     MissingProperties.Add(new PropertyInformation
                     {
                         Type = propData.Split(' ')[0].RemoveNamespace(),
-                        Name = propData.Split(' ')[1]
+                        OriginalName = propData.Split(' ')[1]
                     });
                 }
             }

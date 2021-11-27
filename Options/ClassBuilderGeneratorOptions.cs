@@ -27,5 +27,11 @@ namespace ClassBuilderGenerator.Options
         [DefaultValue(MissingProperties.AlwaysAskWhatToDo)]
         [TypeConverter(typeof(EnumConverter))]
         public MissingProperties MissingProperties { get; set; } = MissingProperties.AlwaysAskWhatToDo;
+
+        [Category("Generator")]
+        [DisplayName("Generate Summary Information")]
+        [Description("This option controls if the summary will be added to the methods")]
+        [DefaultValue(true)]
+        public bool GenerateSummaryInformation { get; set; } = true;
     }
 }
