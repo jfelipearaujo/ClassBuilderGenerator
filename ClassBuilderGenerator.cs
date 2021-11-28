@@ -350,7 +350,8 @@ namespace ClassBuilderGenerator
 
                 foreach(var item in classInformation.CustomConstructor.Properties)
                 {
-                    if(!classInformation.Properties.Any(x => x.OriginalName == item.OriginalName && x.Type == item.Type))
+                    if(!classInformation.Properties.Any(x => x.OriginalNameInCamelCase == item.OriginalNameInCamelCase
+                        && x.Type == item.Type))
                     {
                         missingProperties.Add(item);
                     }
