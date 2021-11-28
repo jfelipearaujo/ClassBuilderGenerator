@@ -88,5 +88,10 @@ namespace ClassBuilderGenerator.Core
         {
             return BuilderConstants.ReservedKeywords.Contains(propName) ? $"@{propName}" : propName;
         }
+
+        public static bool RegexMatch(this string str, string pattern)
+        {
+            return Regex.IsMatch(str, pattern);
+        }
     }
 }

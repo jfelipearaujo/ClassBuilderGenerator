@@ -527,7 +527,8 @@ namespace ClassBuilderGenerator
                         .Append(item.OriginalNameInCamelCase)
                         .Append(" = ");
 
-                    if(item.Type.Contains("List"))
+                    if(item.Type.RegexMatch("^List")
+                        || item.Type.RegexMatch("^Dictionary"))
                     {
                         builderContent
                             .Append("new ")
@@ -612,10 +613,8 @@ namespace ClassBuilderGenerator
                         .AppendLine();
 
                     #region With Method for list item
-                    if(generateListWithItemMethod && (item.Type.Contains("List")
-                            || item.Type.Contains("IEnumerable")
-                            || item.Type.Contains("Enumerable")
-                            || item.Type.Contains("ICollection")))
+                    if(generateListWithItemMethod && (item.Type.RegexMatch("^List")
+                            || item.Type.RegexMatch("^IEnumerable")))
                     {
                         var start = item.Type.IndexOf("<") + 1;
                         var end = item.Type.LastIndexOf(">");
@@ -645,10 +644,11 @@ namespace ClassBuilderGenerator
                             .Append("\t")
                             .Append("\t");
 
-                        if(item.Type.Contains("IEnumerable")
-                            || item.Type.Contains("Enumerable"))
+                        if(item.Type.RegexMatch("^IEnumerable"))
                         {
                             builderContent
+                                .Append(item.OriginalNameInCamelCase)
+                                .Append(" = ")
                                 .Append("Enumerable.Append(")
                                 .Append(item.OriginalNameInCamelCase)
                                 .AppendLine(", item);");
