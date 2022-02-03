@@ -6,7 +6,7 @@ using Xunit;
 
 namespace UnitTests
 {
-    public class StringHelperTest
+    public class StringHelperTests
     {
         [Theory]
         [InlineData("System.int", "int")]
@@ -43,8 +43,8 @@ namespace UnitTests
         [InlineData("System.Collections.Generic.Dictionary<int, string>", "Dictionary<int, string>", 5)]
         [InlineData("System.Collections.Generic.Dictionary<System.int, System.string>", "Dictionary<int, string>", 5)]
         [InlineData("System.Collections.Generic.Dictionary<System.int, Custom.Namespace.CustomObject>", "Dictionary<int, CustomObject>", 6)]
-        [InlineData("System.Collections.Generic.Dictionary<System.int, System.Collections.Generic.List<int>", "Dictionary<int, List<int>>", 5)]
-        [InlineData("System.Collections.Generic.Dictionary<System.int, System.Collections.Generic.List<Custom.Namespace.CustomObject>", "Dictionary<int, List<CustomObject>>", 6)]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, System.Collections.Generic.List<int>>", "Dictionary<int, List<int>>", 5)]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, System.Collections.Generic.List<Custom.Namespace.CustomObject>>", "Dictionary<int, List<CustomObject>>", 6)]
         public void ShouldExecuteRemoveNamespaceWithClassInformationSuccessfully(string input, string expectedResult, int expectedUsingCount)
         {
             var classInformation = new ClassInformation();
@@ -62,6 +62,42 @@ namespace UnitTests
         {
             var result = input.ToCamelCase();
 
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("System.Collections.Generic.Dictionary<int, string>", "int")]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, System.string>", "int")]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, Custom.Namespace.CustomObject>", "int")]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, System.Collections.Generic.List<int>>", "int")]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, System.Collections.Generic.List<Custom.Namespace.CustomObject>>", "int")]
+        [InlineData("System.Collections.Generic.Dictionary<Custom.Namespace.CustomObject, System.Collections.Generic.List<Custom.Namespace.CustomObject>>", "CustomObject")]
+        public void GetDictionaryKeyType(string input, string expectedResult)
+        {
+            // Arrange
+
+            // Act
+            var result = input.GetDictionaryKeyType();
+
+            // Assert
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("System.Collections.Generic.Dictionary<int, string>", "string")]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, System.string>", "string")]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, Custom.Namespace.CustomObject>", "CustomObject")]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, System.Collections.Generic.List<int>>", "List<int>")]
+        [InlineData("System.Collections.Generic.Dictionary<System.int, System.Collections.Generic.List<Custom.Namespace.CustomObject>>", "List<CustomObject>")]
+        [InlineData("System.Collections.Generic.Dictionary<Custom.Namespace.CustomObject, System.Collections.Generic.List<Custom.Namespace.CustomObject>>", "List<CustomObject>")]
+        public void GetDictionaryValueType(string input, string expectedResult)
+        {
+            // Arrange
+
+            // Act
+            var result = input.GetDictionaryValueType();
+
+            // Assert
             result.Should().Be(expectedResult);
         }
     }

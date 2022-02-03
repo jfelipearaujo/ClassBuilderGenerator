@@ -1,14 +1,4 @@
-﻿using ClassBuilderGenerator.Core;
-using ClassBuilderGenerator.Enums;
-using ClassBuilderGenerator.Forms;
-
-using EnvDTE;
-
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
@@ -16,6 +6,17 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+
+using ClassBuilderGenerator.Core;
+using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Forms;
+using ClassBuilderGenerator.Options;
+
+using EnvDTE;
+
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -96,7 +97,7 @@ namespace ClassBuilderGenerator
 
             try
             {
-                if(!ProjectHelper.IsSingleProjectItemSelection(out var hierarchy, out var itemid))
+                if (!ProjectHelper.IsSingleProjectItemSelection(out var hierarchy, out var itemid))
                 {
                     VsShellUtilities.ShowMessageBox(
                         this.package,
@@ -113,7 +114,7 @@ namespace ClassBuilderGenerator
 
                 var projectExtension = ProjectHelper.ProjectSupportsBuilders(vsProject);
 
-                if(projectExtension == "err" || !string.IsNullOrEmpty(projectExtension))
+                if (projectExtension == "err" || !string.IsNullOrEmpty(projectExtension))
                 {
                     VsShellUtilities.ShowMessageBox(
                         this.package,
@@ -126,7 +127,7 @@ namespace ClassBuilderGenerator
                     return;
                 }
 
-                if(!ProjectHelper.ItemSupportsBuilders(vsProject, itemid))
+                if (!ProjectHelper.ItemSupportsBuilders(vsProject, itemid))
                 {
                     var error = new StringBuilder();
 
@@ -146,19 +147,19 @@ namespace ClassBuilderGenerator
                     return;
                 }
 
-                if(ErrorHandler.Failed(vsProject.GetMkDocument(VSConstants.VSITEMID_ROOT, out var projectFullPath)))
+                if (ErrorHandler.Failed(vsProject.GetMkDocument(VSConstants.VSITEMID_ROOT, out var projectFullPath)))
                     return;
 
-                if(!(vsProject is IVsBuildPropertyStorage))
+                if (!(vsProject is IVsBuildPropertyStorage))
                     return;
 
-                if(ErrorHandler.Failed(vsProject.GetMkDocument(itemid, out var itemFullPath)))
+                if (ErrorHandler.Failed(vsProject.GetMkDocument(itemid, out var itemFullPath)))
                     return;
 
                 var solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
                 int hr = solution.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hierarchy, 0);
 
-                if(hr < 0)
+                if (hr < 0)
                 {
                     throw new COMException(string.Format("Failed to add project item {0} {1}", itemFullPath, ProjectHelper.GetErrorInfo()), hr);
                 }
@@ -172,7 +173,7 @@ namespace ClassBuilderGenerator
 
                 IVsUIShell uiShell = (IVsUIShell)ServiceProvider.GetService(typeof(SVsUIShell));
 
-                if(File.Exists(newItemFullPath))
+                if (File.Exists(newItemFullPath))
                 {
                     var message = new StringBuilder();
 
@@ -186,7 +187,7 @@ namespace ClassBuilderGenerator
                         OLEMSGICON.OLEMSGICON_QUERY,
                         uiShell);
 
-                    if(!result)
+                    if (!result)
                         return;
                 }
 
@@ -196,13 +197,20 @@ namespace ClassBuilderGenerator
                 var methodWithGenerator = options.MethodWithGenerator;
                 var missingPropertiesBehavior = options.MissingProperties;
                 var generateSummaryInformation = options.GenerateSummaryInformation;
+                var generateWithMethodForCollections = options.GenerateWithMethodForCollections;
 
                 var builderContent = new StringBuilder();
                 var classInformation = new ClassInformation();
 
                 CollectClassData(classInformation, selectedProjectItem, uiShell, missingPropertiesBehavior);
 
-                GenerateBuilder(classInformation, builderContent, generateListWithItemMethod, methodWithGenerator, generateSummaryInformation);
+                GenerateBuilder(classInformation, builderContent, new GeneratorOptions
+                {
+                    GenerateListWithItemMethod = generateListWithItemMethod,
+                    GenerateSummaryInformation = generateSummaryInformation,
+                    GenerateWithMethodForCollections = generateWithMethodForCollections,
+                    MethodWithGenerator = methodWithGenerator,
+                });
 
                 AddBuilderFile(builderContent.ToString(), itemBuilderName, itemFolder);
                 AddBuilderToSolution(selectedProjectItem.ContainingProject, itemBuilderName, itemFolder, hierarchy);
@@ -212,7 +220,7 @@ namespace ClassBuilderGenerator
                 hierarchy.ParseCanonicalName(newItemFullPath, out var addedFileId);
                 buildPropertyStorage.SetItemAttribute(addedFileId, "IsBuilderFile", "True");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 VsShellUtilities.ShowMessageBox(
                     this.package,
@@ -233,11 +241,11 @@ namespace ClassBuilderGenerator
 
             CodeElements codeElements = projectItem.FileCodeModel.CodeElements;
 
-            for(int i = 1; i <= projectItem.FileCodeModel.CodeElements.Count; i++)
+            for (int i = 1; i <= projectItem.FileCodeModel.CodeElements.Count; i++)
             {
                 CodeElement codeElement = codeElements.Item(i);
 
-                if(codeElement.Kind == vsCMElement.vsCMElementNamespace)
+                if (codeElement.Kind == vsCMElement.vsCMElementNamespace)
                 {
                     classInformation.Namespace = codeElement.Name;
 
@@ -245,27 +253,27 @@ namespace ClassBuilderGenerator
 
                     CodeElements subCodeElements = codeNamespace.Members;
 
-                    for(int j = 1; j <= codeNamespace.Members.Count; j++)
+                    for (int j = 1; j <= codeNamespace.Members.Count; j++)
                     {
                         codeElement = subCodeElements.Item(j);
 
-                        if(codeElement.IsCodeType && codeElement.Kind != vsCMElement.vsCMElementDelegate)
+                        if (codeElement.IsCodeType && codeElement.Kind != vsCMElement.vsCMElementDelegate)
                         {
                             classInformation.Name = codeElement.Name;
 
                             CodeClass codeClass = codeElement as CodeClass;
 
-                            for(int k = 1; k <= codeClass.Members.Count; k++)
+                            for (int k = 1; k <= codeClass.Members.Count; k++)
                             {
                                 CodeElement subCodeElement = codeClass.Members.Item(k);
 
                                 // Collect constructor data
-                                if(subCodeElement.Name == classInformation.Name
+                                if (subCodeElement.Name == classInformation.Name
                                     && subCodeElement.Kind == vsCMElement.vsCMElementFunction)
                                 {
                                     CodeFunction codeFunction = subCodeElement as CodeFunction;
 
-                                    foreach(CodeFunction item in codeFunction.Overloads)
+                                    foreach (CodeFunction item in codeFunction.Overloads)
                                     {
                                         var constructor = item.get_Prototype((int)vsCMPrototype.vsCMPrototypeParamNames)
                                             .Replace(" (", "(");
@@ -274,7 +282,7 @@ namespace ClassBuilderGenerator
                                             | vsCMPrototype.vsCMPrototypeParamNames))
                                             .Replace(" (", "(");
 
-                                        if(!constructor.Contains("()") && !classInformation.Constructors.ContainsKey(constructor))
+                                        if (!constructor.Contains("()") && !classInformation.Constructors.ContainsKey(constructor))
                                         {
                                             var properties = constructorProperties
                                                 .Replace($"{classInformation.Name}(", string.Empty)
@@ -296,16 +304,16 @@ namespace ClassBuilderGenerator
 
                             CodeElements codeTypeCodeElements = codeType.Members;
 
-                            for(int l = 1; l <= codeType.Members.Count; l++)
+                            for (int l = 1; l <= codeType.Members.Count; l++)
                             {
                                 CodeElement codeTypeCodeElement = codeTypeCodeElements.Item(l);
 
-                                if(codeTypeCodeElement.Kind != vsCMElement.vsCMElementProperty)
+                                if (codeTypeCodeElement.Kind != vsCMElement.vsCMElementProperty)
                                     continue;
 
                                 var property = codeTypeCodeElement as CodeProperty;
 
-                                if(property.Access != vsCMAccess.vsCMAccessPublic)
+                                if (property.Access != vsCMAccess.vsCMAccessPublic)
                                     continue;
 
                                 classInformation.Properties.Add(new PropertyInformation
@@ -319,7 +327,7 @@ namespace ClassBuilderGenerator
                 }
             }
 
-            if(classInformation.Constructors.Count > 1)
+            if (classInformation.Constructors.Count > 1)
             {
                 var frmConstructorSelector = new FrmConstructorSelector(package, uiShell, classInformation.Constructors.Keys.ToList())
                 {
@@ -334,7 +342,7 @@ namespace ClassBuilderGenerator
                     Properties = classInformation.Constructors.FirstOrDefault(x => x.Key == frmConstructorSelector.SelectedConstructor).Value
                 };
             }
-            else if(classInformation.Constructors.Count == 1)
+            else if (classInformation.Constructors.Count == 1)
             {
                 classInformation.CustomConstructor = new CustomConstructor
                 {
@@ -344,20 +352,20 @@ namespace ClassBuilderGenerator
             }
 
             // Check if all constructor properties are exposed to be created
-            if(classInformation.CustomConstructor != null)
+            if (classInformation.CustomConstructor != null)
             {
                 var missingProperties = new List<PropertyInformation>();
 
-                foreach(var item in classInformation.CustomConstructor.Properties)
+                foreach (var item in classInformation.CustomConstructor.Properties)
                 {
-                    if(!classInformation.Properties.Any(x => x.OriginalNameInCamelCase == item.OriginalNameInCamelCase
-                        && x.Type == item.Type))
+                    if (!classInformation.Properties.Any(x => x.OriginalNameInCamelCase == item.OriginalNameInCamelCase
+                         && x.Type == item.Type))
                     {
                         missingProperties.Add(item);
                     }
                 }
 
-                if(missingProperties.Any()
+                if (missingProperties.Any()
                     && missingPropertiesBehavior == MissingProperties.AlwaysAskWhatToDo)
                 {
                     var frmMissingProperty = new FrmMissingProperty(classInformation.CustomConstructor,
@@ -368,12 +376,12 @@ namespace ClassBuilderGenerator
 
                     frmMissingProperty.ShowDialog();
 
-                    if(frmMissingProperty.ForceCreatingOfMissingProperties)
+                    if (frmMissingProperty.ForceCreatingOfMissingProperties)
                     {
                         classInformation.Properties.AddRange(frmMissingProperty.MissingProperties);
                     }
                 }
-                else if(missingProperties.Any()
+                else if (missingProperties.Any()
                     && missingPropertiesBehavior == MissingProperties.AlwaysForceCreationOfMissingProperties)
                 {
                     classInformation.Properties.AddRange(missingProperties);
@@ -383,12 +391,12 @@ namespace ClassBuilderGenerator
 
         private void GenerateBuilder(ClassInformation classInformation,
             StringBuilder builderContent,
-            bool generateListWithItemMethod,
-            MethodWithGenerator methodWithGenerator,
-            bool generateSummaryInformation)
+            GeneratorOptions options)
         {
+            var stringCheckBuilder = new StringCheckBuilder();
+
             #region Usings
-            foreach(var item in classInformation.Usings)
+            foreach (var item in classInformation.Usings)
             {
                 builderContent.Append("using ")
                     .Append(item).AppendLine(";");
@@ -403,7 +411,7 @@ namespace ClassBuilderGenerator
                 .Append(classInformation.Namespace)
                 .AppendLine()
                 .AppendLine("{")
-                .AddClassSummary(generateSummaryInformation, classInformation)
+                .AddClassSummary(options.GenerateSummaryInformation, classInformation)
                 .Append("\t")
                 .Append("public class ")
                 .AppendLine(classInformation.BuilderName)
@@ -412,9 +420,9 @@ namespace ClassBuilderGenerator
             #endregion
 
             #region Private properties
-            foreach(var item in classInformation.Properties)
+            foreach (var item in classInformation.Properties)
             {
-                if(classInformation.CustomConstructor == null)
+                if (classInformation.CustomConstructor == null)
                 {
                     builderContent
                         .Append("\t")
@@ -429,25 +437,25 @@ namespace ClassBuilderGenerator
                 {
                     var addPropertyToBuilder = false;
 
-                    switch(methodWithGenerator)
+                    switch (options.MethodWithGenerator)
                     {
                         case MethodWithGenerator.GenerateAllProps:
                             addPropertyToBuilder = true;
                             break;
                         case MethodWithGenerator.PreferConstructorProps:
-                        {
-                            // Check if each property is used in the selected constructor
-                            if(classInformation.CustomConstructor.Properties
-                                .Any(x => x.OriginalName == item.OriginalName
-                                    || x.OriginalNameInCamelCase == item.OriginalNameInCamelCase))
                             {
-                                addPropertyToBuilder = true;
+                                // Check if each property is used in the selected constructor
+                                if (classInformation.CustomConstructor.Properties
+                                    .Any(x => x.OriginalName == item.OriginalName
+                                        || x.OriginalNameInCamelCase == item.OriginalNameInCamelCase))
+                                {
+                                    addPropertyToBuilder = true;
+                                }
                             }
-                        }
-                        break;
+                            break;
                     }
 
-                    if(addPropertyToBuilder)
+                    if (addPropertyToBuilder)
                     {
                         builderContent
                             .Append("\t")
@@ -464,29 +472,29 @@ namespace ClassBuilderGenerator
 
             #region Constructor
             builderContent
-                    .AppendLine()
-                    .AddBuilderConstructorSummary(generateSummaryInformation, classInformation)
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("public ")
-                    .Append(classInformation.BuilderName)
-                    .AppendLine("()")
-                    .Append("\t")
-                    .Append("\t")
-                    .AppendLine("{")
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t")
-                    .AppendLine("Reset();")
-                    .Append("\t")
-                    .Append("\t")
-                    .AppendLine("}");
+                .AppendLine()
+                .AddBuilderConstructorSummary(options.GenerateSummaryInformation, classInformation)
+                .Append("\t")
+                .Append("\t")
+                .Append("public ")
+                .Append(classInformation.BuilderName)
+                .AppendLine("()")
+                .Append("\t")
+                .Append("\t")
+                .AppendLine("{")
+                .Append("\t")
+                .Append("\t")
+                .Append("\t")
+                .AppendLine("Reset();")
+                .Append("\t")
+                .Append("\t")
+                .AppendLine("}");
             #endregion
 
             #region Reset method
             builderContent
                 .AppendLine()
-                .AddResetSummary(generateSummaryInformation, classInformation)
+                .AddResetSummary(options.GenerateSummaryInformation, classInformation)
                 .Append("\t")
                 .Append("\t")
                 .Append("public ")
@@ -496,29 +504,29 @@ namespace ClassBuilderGenerator
                 .Append("\t")
                 .AppendLine("{");
 
-            foreach(var item in classInformation.Properties)
+            foreach (var item in classInformation.Properties)
             {
                 var addResetProperty = false;
 
-                switch(methodWithGenerator)
+                switch (options.MethodWithGenerator)
                 {
                     case MethodWithGenerator.GenerateAllProps:
                         addResetProperty = true;
                         break;
                     case MethodWithGenerator.PreferConstructorProps:
-                    {
-                        // Check if each property is used in the selected constructor
-                        if(classInformation.CustomConstructor.Properties
-                            .Any(x => x.OriginalName == item.OriginalName
-                                || x.OriginalNameInCamelCase == item.OriginalNameInCamelCase))
                         {
-                            addResetProperty = true;
+                            // Check if each property is used in the selected constructor
+                            if (classInformation.CustomConstructor.Properties
+                                .Any(x => x.OriginalName == item.OriginalName
+                                    || x.OriginalNameInCamelCase == item.OriginalNameInCamelCase))
+                            {
+                                addResetProperty = true;
+                            }
                         }
-                    }
-                    break;
+                        break;
                 }
 
-                if(addResetProperty)
+                if (addResetProperty)
                 {
                     builderContent
                         .Append("\t")
@@ -527,8 +535,11 @@ namespace ClassBuilderGenerator
                         .Append(item.OriginalNameInCamelCase)
                         .Append(" = ");
 
-                    if(item.Type.RegexMatch("^List")
-                        || item.Type.RegexMatch("^Dictionary"))
+                    if (stringCheckBuilder
+                        .IsList(item.Type)
+                        .IsDictionary(item.Type)
+                        .IsCollection(item.Type)
+                        .CheckForOrCondition())
                     {
                         builderContent
                             .Append("new ")
@@ -557,18 +568,26 @@ namespace ClassBuilderGenerator
             #endregion
 
             #region With methods
-            foreach(var item in classInformation.Properties)
+            foreach (var item in classInformation.Properties)
             {
+                var isCollection = stringCheckBuilder
+                    .IsList(item.Type)
+                    .IsIEnumerable(item.Type)
+                    .IsICollection(item.Type)
+                    .IsCollection(item.Type)
+                    .IsDictionary(item.Type)
+                    .CheckForOrCondition();
+
                 var addMethodWith = false;
 
-                switch(methodWithGenerator)
+                switch (options.MethodWithGenerator)
                 {
                     case MethodWithGenerator.GenerateAllProps:
                         addMethodWith = true;
                         break;
                     case MethodWithGenerator.PreferConstructorProps:
                         // Check if each property is used in the selected constructor
-                        if(classInformation.CustomConstructor.Properties
+                        if (classInformation.CustomConstructor.Properties
                             .Any(x => x.OriginalName == item.OriginalName
                                 || x.OriginalNameInCamelCase == item.OriginalNameInCamelCase))
                         {
@@ -577,10 +596,15 @@ namespace ClassBuilderGenerator
                         break;
                 }
 
-                if(addMethodWith)
+                if (options.GenerateWithMethodForCollections == false && isCollection)
+                {
+                    addMethodWith = false;
+                }
+
+                if (addMethodWith)
                 {
                     builderContent
-                        .AddWithSummary(generateSummaryInformation, classInformation, item)
+                        .AddWithSummary(options.GenerateSummaryInformation, classInformation, item)
                         .Append("\t")
                         .Append("\t")
                         .Append("public ")
@@ -611,73 +635,118 @@ namespace ClassBuilderGenerator
                         .Append("\t")
                         .AppendLine("}")
                         .AppendLine();
-
-                    #region With Method for list item
-                    if(generateListWithItemMethod && (item.Type.RegexMatch("^List")
-                            || item.Type.RegexMatch("^IEnumerable")))
-                    {
-                        var start = item.Type.IndexOf("<") + 1;
-                        var end = item.Type.LastIndexOf(">");
-                        var subListObject = item.Type.Substring(start, end - start);
-
-                        if(subListObject.Contains("."))
-                        {
-                            subListObject = subListObject
-                                .Substring(subListObject.LastIndexOf(".") + 1);
-                        }
-
-                        builderContent
-                            .AddWithCollectionItemSummary(generateSummaryInformation, classInformation, item, subListObject)
-                            .Append("\t")
-                            .Append("\t")
-                            .Append("public ")
-                            .Append(classInformation.BuilderName)
-                            .Append(" With")
-                            .Append(item.OriginalName.ToTitleCase())
-                            .Append("Item(")
-                            .Append(subListObject)
-                            .AppendLine(" item)")
-                            .Append("\t")
-                            .Append("\t")
-                            .AppendLine("{")
-                            .Append("\t")
-                            .Append("\t")
-                            .Append("\t");
-
-                        if(item.Type.RegexMatch("^IEnumerable"))
-                        {
-                            builderContent
-                                .Append(item.OriginalNameInCamelCase)
-                                .Append(" = ")
-                                .Append("Enumerable.Append(")
-                                .Append(item.OriginalNameInCamelCase)
-                                .AppendLine(", item);");
-                        }
-                        else
-                        {
-                            builderContent
-                                .Append(item.OriginalNameInCamelCase)
-                                .AppendLine(".Add(item);");
-                        }
-
-                        builderContent
-                            .Append("\t")
-                            .Append("\t")
-                            .Append("\t")
-                            .AppendLine("return this;")
-                            .Append("\t")
-                            .Append("\t")
-                            .AppendLine("}")
-                            .AppendLine();
-                    }
                 }
-                #endregion
+
+                if (options.GenerateListWithItemMethod
+                    && stringCheckBuilder
+                        .IsList(item.Type)
+                        .IsIEnumerable(item.Type)
+                        .IsCollection(item.Type)
+                        .CheckForOrCondition())
+                {
+                    var start = item.Type.IndexOf("<") + 1;
+                    var end = item.Type.LastIndexOf(">");
+                    var subListObject = item.Type.Substring(start, end - start);
+
+                    if (subListObject.Contains("."))
+                    {
+                        subListObject = subListObject
+                            .Substring(subListObject.LastIndexOf(".") + 1);
+                    }
+
+                    builderContent
+                        .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item, subListObject)
+                        .Append("\t")
+                        .Append("\t")
+                        .Append("public ")
+                        .Append(classInformation.BuilderName)
+                        .Append(" With")
+                        .Append(item.OriginalName.ToTitleCase())
+                        .Append("Item(")
+                        .Append(subListObject)
+                        .AppendLine(" item)")
+                        .Append("\t")
+                        .Append("\t")
+                        .AppendLine("{")
+                        .Append("\t")
+                        .Append("\t")
+                        .Append("\t");
+
+                    if (item.Type.RegexMatch("^IEnumerable"))
+                    {
+                        builderContent
+                            .Append(item.OriginalNameInCamelCase)
+                            .Append(" = ")
+                            .Append("Enumerable.Append(")
+                            .Append(item.OriginalNameInCamelCase)
+                            .AppendLine(", item);");
+                    }
+                    else
+                    {
+                        builderContent
+                            .Append(item.OriginalNameInCamelCase)
+                            .AppendLine(".Add(item);");
+                    }
+
+                    builderContent
+                        .Append("\t")
+                        .Append("\t")
+                        .Append("\t")
+                        .AppendLine("return this;")
+                        .Append("\t")
+                        .Append("\t")
+                        .AppendLine("}")
+                        .AppendLine();
+                }
+
+                if (options.GenerateListWithItemMethod
+                    && stringCheckBuilder
+                        .IsDictionary(item.Type)
+                        .CheckForOrCondition())
+                {
+                    var dicKey = item.Type.GetDictionaryKeyType();
+                    var dicValue = item.Type.GetDictionaryValueType();
+
+                    builderContent
+                        .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item, dicValue)
+                        .Append("\t")
+                        .Append("\t")
+                        .Append("public ")
+                        .Append(classInformation.BuilderName)
+                        .Append(" With")
+                        .Append(item.OriginalName.ToTitleCase())
+                        .Append("Item(")
+                        .Append(dicKey)
+                        .Append(" key, ")
+                        .Append(dicValue)
+                        .AppendLine(" value)")
+                        .Append("\t")
+                        .Append("\t")
+                        .AppendLine("{")
+                        .Append("\t")
+                        .Append("\t")
+                        .Append("\t");
+
+                    builderContent
+                        .Append(item.OriginalNameInCamelCase)
+                        .AppendLine(".Add(key, value);");
+
+                    builderContent
+                        .Append("\t")
+                        .Append("\t")
+                        .Append("\t")
+                        .AppendLine("return this;")
+                        .Append("\t")
+                        .Append("\t")
+                        .AppendLine("}")
+                        .AppendLine();
+                }
             }
             #endregion
 
             #region Build method
             builderContent
-                .AddBuildSummary(generateSummaryInformation, classInformation)
+                .AddBuildSummary(options.GenerateSummaryInformation, classInformation)
                 .Append("\t")
                 .Append("\t")
                 .Append("public ")
@@ -691,7 +760,7 @@ namespace ClassBuilderGenerator
                 .Append("\t")
                 .Append("return new ");
 
-            if(classInformation.CustomConstructor == null)
+            if (classInformation.CustomConstructor == null)
             {
                 builderContent
                     .AppendLine(classInformation.Name)
@@ -700,7 +769,7 @@ namespace ClassBuilderGenerator
                     .Append("\t")
                     .AppendLine("{");
 
-                foreach(var item in classInformation.Properties)
+                foreach (var item in classInformation.Properties)
                 {
                     builderContent
                         .Append("\t")
@@ -740,7 +809,7 @@ namespace ClassBuilderGenerator
         {
             string itemPath = Path.Combine(projectPath, itemName);
 
-            using(var writer = new StreamWriter(itemPath, false))
+            using (var writer = new StreamWriter(itemPath, false))
             {
                 writer.Write(content);
             }
@@ -752,12 +821,12 @@ namespace ClassBuilderGenerator
 
             string itemPath = Path.Combine(projectPath, itemName);
 
-            if(!File.Exists(itemPath))
+            if (!File.Exists(itemPath))
                 return;
 
             heirarchy.ParseCanonicalName(itemPath, out var removeFileId);
 
-            if(removeFileId < uint.MaxValue)
+            if (removeFileId < uint.MaxValue)
             {
                 var itemToRemove = ProjectHelper.GetProjectItemFromHierarchy(heirarchy, removeFileId);
 

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ClassBuilderGenerator.Core
 {
@@ -6,15 +7,15 @@ namespace ClassBuilderGenerator.Core
     {
         public static string RemoveNamespace(this string str, ClassInformation classInformation = null)
         {
-            if(str.Contains("<"))
+            if (str.Contains("<"))
             {
                 var collectionNamespace = str.Substring(0, str.IndexOf("<"));
 
-                if(classInformation != null)
+                if (classInformation != null)
                 {
                     var collectionUsing = collectionNamespace.Substring(0, collectionNamespace.LastIndexOf("."));
 
-                    if(!classInformation.Usings.Contains(collectionUsing))
+                    if (!classInformation.Usings.Contains(collectionUsing))
                     {
                         classInformation.Usings.Add(collectionUsing);
                     }
@@ -22,17 +23,17 @@ namespace ClassBuilderGenerator.Core
 
                 var collectionObject = str.Substring(str.IndexOf("<") + 1);
 
-                if(collectionObject.Contains(">"))
+                if (collectionObject.Contains(">"))
                     collectionObject = collectionObject.Substring(0, collectionObject.LastIndexOf(">"));
 
                 var collectionType = collectionNamespace.RemoveNamespace(classInformation);
 
                 // Check if is a dictionary type
-                if(collectionObject.Contains(","))
+                if (collectionObject.Contains(","))
                 {
                     var dicTypes = collectionObject.Split(',');
 
-                    for(int i = 0; i < dicTypes.Length; i++)
+                    for (int i = 0; i < dicTypes.Length; i++)
                         dicTypes[i] = dicTypes[i].TrimStart().TrimEnd().Trim();
 
                     var dicKey = dicTypes[0].RemoveNamespace(classInformation);
@@ -43,13 +44,13 @@ namespace ClassBuilderGenerator.Core
 
                 return $"{collectionType}<{collectionObject.RemoveNamespace(classInformation)}>";
             }
-            else if(str.Contains("."))
+            else if (str.Contains("."))
             {
-                if(classInformation != null)
+                if (classInformation != null)
                 {
                     var propUsing = str.Substring(0, str.LastIndexOf("."));
 
-                    if(!classInformation.Usings.Contains(propUsing))
+                    if (!classInformation.Usings.Contains(propUsing))
                     {
                         classInformation.Usings.Add(propUsing);
                     }
@@ -63,7 +64,7 @@ namespace ClassBuilderGenerator.Core
 
         public static string ToTitleCase(this string str)
         {
-            if(!string.IsNullOrEmpty(str) && str.Length > 1)
+            if (!string.IsNullOrEmpty(str) && str.Length > 1)
             {
                 return char.ToUpperInvariant(str[0]) + str.Substring(1);
             }
@@ -75,7 +76,7 @@ namespace ClassBuilderGenerator.Core
         {
             var x = str.Replace("_", "");
 
-            if(x.Length == 0)
+            if (x.Length == 0)
                 return AdjustIfIsReservedKeyword(str);
 
             x = Regex.Replace(x, "([A-Z])([A-Z]+)($|[A-Z])",
@@ -92,6 +93,20 @@ namespace ClassBuilderGenerator.Core
         public static bool RegexMatch(this string str, string pattern)
         {
             return Regex.IsMatch(str, pattern);
+        }
+
+        public static string GetDictionaryKeyType(this string str)
+        {
+            var dicBase = str.Split(',').First();
+            var key = dicBase.Substring(dicBase.IndexOf("<") + 1);
+            return RemoveNamespace(key);
+        }
+
+        public static string GetDictionaryValueType(this string str)
+        {
+            var dicBase = str.Split(',').ElementAt(1).TrimStart();
+            var key = dicBase.Substring(0, dicBase.LastIndexOf(">"));
+            return RemoveNamespace(key);
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿using ClassBuilderGenerator.Enums;
+﻿using System.ComponentModel;
+
+using ClassBuilderGenerator.Enums;
 
 using Microsoft.VisualStudio.Shell;
-
-using System.ComponentModel;
 
 namespace ClassBuilderGenerator.Options
 {
@@ -33,5 +33,11 @@ namespace ClassBuilderGenerator.Options
         [Description("This option controls if the summary will be added to the methods")]
         [DefaultValue(true)]
         public bool GenerateSummaryInformation { get; set; } = true;
+
+        [Category("Generator")]
+        [DisplayName("Generate With method for collections")]
+        [Description("This option controls if the With method will be added for properties like: List, IEnumerable, Collection, ICollection and Dictionary")]
+        [DefaultValue(true)]
+        public bool GenerateWithMethodForCollections { get; set; } = true;
     }
 }

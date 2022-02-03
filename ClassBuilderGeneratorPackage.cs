@@ -1,12 +1,12 @@
-﻿using ClassBuilderGenerator.Enums;
-using ClassBuilderGenerator.Options;
-
-using Microsoft.VisualStudio.Shell;
-
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
+
+using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Options;
+
+using Microsoft.VisualStudio.Shell;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -52,12 +52,13 @@ namespace ClassBuilderGenerator
             // initialization is the Initialize method.
         }
 
+        private ClassBuilderGeneratorOptions OptionsPage => (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
+
         public bool GenerateListWithItemMethod
         {
             get
             {
-                ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
-                return page.GenerateListWithItemMethod;
+                return OptionsPage.GenerateListWithItemMethod;
             }
         }
 
@@ -65,8 +66,7 @@ namespace ClassBuilderGenerator
         {
             get
             {
-                ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
-                return page.WithMethodGeneratorHandler;
+                return OptionsPage.WithMethodGeneratorHandler;
             }
         }
 
@@ -74,8 +74,7 @@ namespace ClassBuilderGenerator
         {
             get
             {
-                ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
-                return page.MissingProperties;
+                return OptionsPage.MissingProperties;
             }
         }
 
@@ -83,8 +82,15 @@ namespace ClassBuilderGenerator
         {
             get
             {
-                ClassBuilderGeneratorOptions page = (ClassBuilderGeneratorOptions)GetDialogPage(typeof(ClassBuilderGeneratorOptions));
-                return page.GenerateSummaryInformation;
+                return OptionsPage.GenerateSummaryInformation;
+            }
+        }
+
+        public bool GenerateWithMethodForCollections
+        {
+            get
+            {
+                return OptionsPage.GenerateWithMethodForCollections;
             }
         }
 

@@ -59,6 +59,7 @@
     <Compile Include="Core\CustomConstructor.cs" />
     <Compile Include="Core\ProjectHelper.cs" />
     <Compile Include="Core\PropertyInformation.cs" />
+    <Compile Include="Core\StringCheckBuilder.cs" />
     <Compile Include="Core\StringHelper.cs" />
     <Compile Include="Core\SummaryHelper.cs" />
     <Compile Include="Enums\MissingProperties.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Forms\FrmConstructorSelector.Designer.cs">
       <DependentUpon>FrmConstructorSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="Options\GeneratorOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
