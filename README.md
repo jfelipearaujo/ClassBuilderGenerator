@@ -232,6 +232,7 @@ Currently this behavior (WithItem) only supports properties with types: **List**
 | `1.4.6` | 11/28/2021 | Fixed how the WithItem feature works |
 | `1.5` | 02/01/2022 | Added support for VS 2022 |
 | `1.5.1` | 02/02/2022 | - Added a config option to enable or disable the generation of With methods for collections <br> - Now WithItem supports types like Dictionary and Collection |
+| `1.5.2`| 07/19/2022 | Fixed the release notes link |
 
 <p align="center">
 <br/><br/>Did you find a <b>bug</b> or have a <b>suggestion</b> to make?<br/>Use the <b>issue tracker</b> to send all the necessary information and as soon as possible I will analyze it.<br/><br/>Thank you!
