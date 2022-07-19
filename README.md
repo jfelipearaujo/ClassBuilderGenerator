@@ -220,7 +220,7 @@ Currently this behavior (WithItem) only supports properties with types: **List**
 | `1.1` | 11/06/2021 | Added some error message boxes and added file overwrite prevention without user consent  |
 | `1.2` | 11/06/2021 | Added a config option to enable or disable the generation of WithItem method for List properties  |
 | `1.3` | 11/08/2021 | Added intelligence in dealing with existing class constructors |
-| `1.3.1` | 11/08/2021 | Fixed issue [#1](https://github.com/jfelipearaujo/ClassBuilderGeneratorTracker/issues/1) and [#2](https://github.com/jfelipearaujo/ClassBuilderGeneratorTracker/issues/2) |
+| `1.3.1` | 11/08/2021 | Fixed two issues |
 | `1.3.2` | 11/08/2021 | Now through a configuration you can specify if the properties outside the chosen constructor will have their own "With" methods or not |
 | `1.3.3` | 11/09/2021 | Fixed a minor bug |
 | `1.4` | 11/15/2021 | Added a configurable behavior when the custom constructor selected has properties that are not exposed in the base class |
