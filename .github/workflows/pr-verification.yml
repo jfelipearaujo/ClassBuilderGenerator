@@ -1,0 +1,38 @@
+name: pr-verification
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    
+jobs:
+  build-extension:
+    runs-on: windows-latest
+    
+    env: 
+        DOTNET_NOLOGO: true
+        DOTNET_CLI_TELEMETRY_OPTOUT: true
+        RepositoryUrl: 'https://github.com/${{ github.repository }}'
+        RepositoryBranch: '${{ github.ref }}'
+        SourceRevisionId: '${{ github.sha }}'
+        VersionSuffix: 'pr-${{github.event.number}}.${{ github.run_number }}'
+        Configuration: Release
+        SolutionPath: ClassBuilderGenerator.sln
+        Deterministic: true
+        PackageReleaseNotes: 'https://github.com/${{ github.repository }}/releases'
+        
+    steps:
+    - uses: actions/checkout@v2   
+    - name: Setup .NET 
+      uses: actions/setup-dotnet@v1.7.2
+      with:
+        dotnet-version: '6.0.202'
+        
+    - name: Restore dependencies
+      run: |
+        dotnet nuget locals all --clear
+        dotnet restore $env:SolutionPath    
+        
+    - name: Build extension
+      run: dotnet build $env:SolutionPath 
+      
+    - name: Test extension
+      run: dotnet test --no-build --verbosity normal $env:SolutionPath
