@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-18.04, macOS-latest]
+        os: [windows-latest]
         config: [Debug, Release]
         
     steps:
@@ -59,7 +59,7 @@ jobs:
         run: dotnet restore
         
       - name: Build
-        run: dotnet build -c ${{ matrix.config }} Release --no-restore
+        run: dotnet build -c ${{ matrix.config }} --no-restore
       
       - name: "Test"
         run: dotnet test -c ${{ matrix.config }}
