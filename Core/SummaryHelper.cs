@@ -6,7 +6,7 @@ namespace ClassBuilderGenerator.Core
     {
         public static StringBuilder AddClassSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation)
         {
-            if(!configEnabled)
+            if (!configEnabled)
                 return stringBuilder;
 
             stringBuilder
@@ -19,14 +19,14 @@ namespace ClassBuilderGenerator.Core
                 .Append(classInformation.Name)
                 .AppendLine("</see>")
                 .Append("\t")
-                .AppendLine("/// <summary>");
+                .AppendLine("/// </summary>");
 
             return stringBuilder;
         }
 
         public static StringBuilder AddBuilderConstructorSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation)
         {
-            if(!configEnabled)
+            if (!configEnabled)
                 return stringBuilder;
 
             stringBuilder
@@ -42,14 +42,14 @@ namespace ClassBuilderGenerator.Core
                 .AppendLine("</see>")
                 .Append("\t")
                 .Append("\t")
-                .AppendLine("/// <summary>");
+                .AppendLine("/// </summary>");
 
             return stringBuilder;
         }
 
         public static StringBuilder AddResetSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation)
         {
-            if(!configEnabled)
+            if (!configEnabled)
                 return stringBuilder;
 
             stringBuilder
@@ -61,7 +61,7 @@ namespace ClassBuilderGenerator.Core
                 .AppendLine("/// Reset all properties' to the default value")
                 .Append("\t")
                 .Append("\t")
-                .AppendLine("/// <summary>")
+                .AppendLine("/// </summary>")
                 .Append("\t")
                 .Append("\t")
                 .Append("/// <returns>Returns the <see cref=\"")
@@ -75,7 +75,7 @@ namespace ClassBuilderGenerator.Core
 
         public static StringBuilder AddWithSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation, PropertyInformation propertyInformation)
         {
-            if(!configEnabled)
+            if (!configEnabled)
                 return stringBuilder;
 
             stringBuilder
@@ -93,7 +93,7 @@ namespace ClassBuilderGenerator.Core
                 .AppendLine("</paramref>")
                 .Append("\t")
                 .Append("\t")
-                .AppendLine("/// <summary>")
+                .AppendLine("/// </summary>")
                 .Append("\t")
                 .Append("\t")
                 .Append("/// <param name=\"")
@@ -118,7 +118,7 @@ namespace ClassBuilderGenerator.Core
 
         public static StringBuilder AddWithCollectionItemSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation, PropertyInformation propertyInformation, string listObjectType)
         {
-            if(!configEnabled)
+            if (!configEnabled)
                 return stringBuilder;
 
             stringBuilder
@@ -134,7 +134,7 @@ namespace ClassBuilderGenerator.Core
                 .AppendLine("</c>")
                 .Append("\t")
                 .Append("\t")
-                .AppendLine("/// <summary>")
+                .AppendLine("/// </summary>")
                 .Append("\t")
                 .Append("\t")
                 .Append("/// <param name=\"item\">A value of type <typeparamref name=\"")
@@ -155,7 +155,7 @@ namespace ClassBuilderGenerator.Core
 
         public static StringBuilder AddBuildSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation)
         {
-            if(!configEnabled)
+            if (!configEnabled)
                 return stringBuilder;
 
             stringBuilder
@@ -171,7 +171,7 @@ namespace ClassBuilderGenerator.Core
                 .AppendLine("</see> with all the defined values")
                 .Append("\t")
                 .Append("\t")
-                .AppendLine("/// <summary>")
+                .AppendLine("/// </summary>")
                 .Append("\t")
                 .Append("\t")
                 .Append("/// <returns>Returns a <see cref=\"")
