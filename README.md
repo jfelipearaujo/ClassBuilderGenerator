@@ -7,7 +7,7 @@ Class Builder Generator
 </h2>
 
 <p align="center">
-  <img src="https://github.com/jfelipearaujo/ClassBuilderGenerator/actions/workflows/dotnet.yml/badge.svg">
+  <img src="https://github.com/jfelipearaujo/ClassBuilderGenerator/actions/workflows/pr-verification.yml/badge.svg">
   <a href="https://github.com/jfelipearaujo/ClassBuilderGenerator/network/members"><img src="https://img.shields.io/github/forks/jfelipearaujo/ClassBuilderGenerator"></a>
   <a href="https://github.com/jfelipearaujo/ClassBuilderGenerator/stargazers"><img src="https://img.shields.io/github/stars/jfelipearaujo/ClassBuilderGenerator"></a>
 </p>
