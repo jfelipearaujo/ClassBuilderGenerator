@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
-
-using ClassBuilderGenerator.Enums;
+﻿using ClassBuilderGenerator.Enums;
 
 using Microsoft.VisualStudio.Shell;
+
+using System.ComponentModel;
 
 namespace ClassBuilderGenerator.Options
 {
@@ -39,5 +39,11 @@ namespace ClassBuilderGenerator.Options
         [Description("This option controls if the With method will be added for properties like: List, IEnumerable, Collection, ICollection and Dictionary")]
         [DefaultValue(true)]
         public bool GenerateWithMethodForCollections { get; set; } = true;
+
+        [Category("Generator")]
+        [DisplayName("Add \"_\" prefix to the fields")]
+        [Description("This option controls if the \"_\" prefix will be added to the private fields")]
+        [DefaultValue(true)]
+        public bool AddUnderscorePrefixToTheFields { get; set; } = false;
     }
 }

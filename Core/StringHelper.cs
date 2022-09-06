@@ -108,5 +108,11 @@ namespace ClassBuilderGenerator.Core
             var key = dicBase.Substring(0, dicBase.LastIndexOf(">"));
             return RemoveNamespace(key);
         }
+
+        public static string GetIEnumerableKeyType(this string str)
+        {
+            var key = str.Substring(str.IndexOf("<") + 1);
+            return RemoveNamespace(key.Substring(0, key.LastIndexOf(">")));
+        }
     }
 }

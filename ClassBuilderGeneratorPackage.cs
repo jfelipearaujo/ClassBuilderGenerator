@@ -1,12 +1,12 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-using System.Threading;
-
-using ClassBuilderGenerator.Enums;
+﻿using ClassBuilderGenerator.Enums;
 using ClassBuilderGenerator.Options;
 
 using Microsoft.VisualStudio.Shell;
+
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -91,6 +91,14 @@ namespace ClassBuilderGenerator
             get
             {
                 return OptionsPage.GenerateWithMethodForCollections;
+            }
+        }
+
+        public bool AddUnderscorePrefixToTheFields
+        {
+            get
+            {
+                return OptionsPage.AddUnderscorePrefixToTheFields;
             }
         }
 

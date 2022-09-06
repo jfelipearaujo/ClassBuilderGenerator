@@ -57,6 +57,7 @@
     <Compile Include="Core\BuilderConstants.cs" />
     <Compile Include="Core\ClassInformation.cs" />
     <Compile Include="Core\CustomConstructor.cs" />
+    <Compile Include="Core\Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Core\ProjectHelper.cs" />
     <Compile Include="Core\PropertyInformation.cs" />
     <Compile Include="Core\StringCheckBuilder.cs" />

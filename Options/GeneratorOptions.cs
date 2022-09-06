@@ -8,5 +8,6 @@ namespace ClassBuilderGenerator.Options
         public bool GenerateSummaryInformation { get; set; }
         public bool GenerateWithMethodForCollections { get; set; }
         public MethodWithGenerator MethodWithGenerator { get; set; }
+        public bool AddUnderscorePrefixToTheFields { get; set; }
     }
 }
