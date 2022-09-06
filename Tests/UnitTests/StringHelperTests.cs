@@ -100,5 +100,23 @@ namespace UnitTests
             // Assert
             result.Should().Be(expectedResult);
         }
+
+        [Theory]
+        [InlineData("System.Collections.Generic.List<string>", "string")]
+        [InlineData("System.Collections.ICollection<System.int>", "int")]
+        [InlineData("System.Collections.Generic.IEnumerable<Custom.Namespace.CustomObject>", "CustomObject")]
+        [InlineData("System.Collections.IEnumerable<System.Collections.Generic.List<int>>", "List<int>")]
+        [InlineData("System.Collections.Generic.List<System.Collections.Generic.List<Custom.Namespace.CustomObject>>", "List<CustomObject>")]
+        [InlineData("System.Collections.Generic.IEnumerable<System.Collections.Generic.IEnumerable<Custom.Namespace.CustomObject>>", "IEnumerable<CustomObject>")]
+        public void GetIEnumerableKeyType(string input, string expectedResult)
+        {
+            // Arrange
+
+            // Act
+            var result = input.GetIEnumerableKeyType();
+
+            // Assert
+            result.Should().Be(expectedResult);
+        }
     }
 }

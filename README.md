@@ -173,6 +173,51 @@ Options:
 - True
 - False
 
+#### **Generator - Add "_" prefix to the fields**
+
+<p>This option controls if the "_" prefix will be added to the private fields. It 'false' the "this." will be used</p>
+
+Options:
+- True
+- False
+
+Example when 'true':
+```c#
+...
+public string _firstName;
+public string _lastName;
+public int _age;
+public string _email;
+...
+
+public void UserBuilder WithFirstName(string firstName)
+{
+  _firstName = firstName;
+  return this;
+}
+
+...
+
+```
+
+Example when 'false':
+```c#
+...
+public string firstName;
+public string lastName;
+public int age;
+public string email;
+...
+
+public void UserBuilder WithFirstName(string firstName)
+{
+  this.firstName = firstName;
+  return this;
+}
+
+...
+```
+
 #### **Lists - Generate WithItem method**
 
 <p>This option specifies if the generator will create or not a WithItem method to add a single item into the list/collection property.</p>
@@ -238,6 +283,7 @@ Currently this behavior (WithItem) only supports properties with types: **List**
 | `1.5` | 02/01/2022 | Added support for VS 2022 |
 | `1.5.1` | 02/02/2022 | - Added a config option to enable or disable the generation of With methods for collections <br> - Now WithItem supports types like Dictionary and Collection |
 | `1.5.2`| 07/19/2022 | Fixed the release notes link |
+| `1.5.3`| 09/06/2022 | Now the dev can choose to add or not the "_" prefix to the fields.  |
 
 <p align="center">
 <br/><br/>Did you find a <b>bug</b> or have a <b>suggestion</b> to make?<br/>Use the <b>issue tracker</b> to send all the necessary information and as soon as possible I will analyze it.<br/><br/>Thank you!

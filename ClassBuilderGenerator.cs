@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Forms;
-
-using ClassBuilderGenerator.Core;
+﻿using ClassBuilderGenerator.Core;
+using ClassBuilderGenerator.Core.Extensions;
 using ClassBuilderGenerator.Enums;
 using ClassBuilderGenerator.Forms;
 using ClassBuilderGenerator.Options;
@@ -17,6 +9,15 @@ using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -198,22 +199,35 @@ namespace ClassBuilderGenerator
                 var missingPropertiesBehavior = options.MissingProperties;
                 var generateSummaryInformation = options.GenerateSummaryInformation;
                 var generateWithMethodForCollections = options.GenerateWithMethodForCollections;
+                var addUnderscorePrefixToTheFields = options.AddUnderscorePrefixToTheFields;
 
                 var builderContent = new StringBuilder();
                 var classInformation = new ClassInformation();
 
-                CollectClassData(classInformation, selectedProjectItem, uiShell, missingPropertiesBehavior);
+                CollectClassData(classInformation,
+                    selectedProjectItem,
+                    uiShell,
+                    missingPropertiesBehavior);
 
-                GenerateBuilder(classInformation, builderContent, new GeneratorOptions
-                {
-                    GenerateListWithItemMethod = generateListWithItemMethod,
-                    GenerateSummaryInformation = generateSummaryInformation,
-                    GenerateWithMethodForCollections = generateWithMethodForCollections,
-                    MethodWithGenerator = methodWithGenerator,
-                });
+                GenerateBuilder(classInformation,
+                    builderContent,
+                    new GeneratorOptions
+                    {
+                        GenerateListWithItemMethod = generateListWithItemMethod,
+                        GenerateSummaryInformation = generateSummaryInformation,
+                        GenerateWithMethodForCollections = generateWithMethodForCollections,
+                        MethodWithGenerator = methodWithGenerator,
+                        AddUnderscorePrefixToTheFields = addUnderscorePrefixToTheFields,
+                    });
 
-                AddBuilderFile(builderContent.ToString(), itemBuilderName, itemFolder);
-                AddBuilderToSolution(selectedProjectItem.ContainingProject, itemBuilderName, itemFolder, hierarchy);
+                AddBuilderFile(builderContent.ToString(),
+                    itemBuilderName,
+                    itemFolder);
+
+                AddBuilderToSolution(selectedProjectItem.ContainingProject,
+                    itemBuilderName,
+                    itemFolder,
+                    hierarchy);
 
                 var buildPropertyStorage = vsProject as IVsBuildPropertyStorage;
 
@@ -430,6 +444,7 @@ namespace ClassBuilderGenerator
                         .Append("private ")
                         .Append(item.Type)
                         .Append(" ")
+                        .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                         .Append(item.OriginalNameInCamelCase)
                         .AppendLine(";");
                 }
@@ -463,6 +478,7 @@ namespace ClassBuilderGenerator
                             .Append("private ")
                             .Append(item.Type)
                             .Append(" ")
+                            .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                             .Append(item.OriginalNameInCamelCase)
                             .AppendLine(";");
                     }
@@ -532,6 +548,7 @@ namespace ClassBuilderGenerator
                         .Append("\t")
                         .Append("\t")
                         .Append("\t")
+                        .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                         .Append(item.OriginalNameInCamelCase)
                         .Append(" = ");
 
@@ -545,6 +562,15 @@ namespace ClassBuilderGenerator
                             .Append("new ")
                             .Append(item.Type)
                             .Append("()");
+                    }
+                    else if (stringCheckBuilder
+                        .IsIEnumerable(item.Type)
+                        .CheckForOrCondition())
+                    {
+                        builderContent
+                            .Append("Enumerable.Empty<")
+                            .Append(item.Type.GetIEnumerableKeyType())
+                            .Append(">()");
                     }
                     else
                     {
@@ -622,7 +648,7 @@ namespace ClassBuilderGenerator
                         .Append("\t")
                         .Append("\t")
                         .Append("\t")
-                        .Append("this.")
+                        .AppendWhen(options.AddUnderscorePrefixToTheFields, "_", "this.")
                         .Append(item.OriginalNameInCamelCase)
                         .Append(" = ")
                         .Append(item.OriginalNameInCamelCase)
@@ -675,15 +701,18 @@ namespace ClassBuilderGenerator
                     if (item.Type.RegexMatch("^IEnumerable"))
                     {
                         builderContent
+                            .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                             .Append(item.OriginalNameInCamelCase)
                             .Append(" = ")
                             .Append("Enumerable.Append(")
+                            .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                             .Append(item.OriginalNameInCamelCase)
                             .AppendLine(", item);");
                     }
                     else
                     {
                         builderContent
+                            .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                             .Append(item.OriginalNameInCamelCase)
                             .AppendLine(".Add(item);");
                     }
@@ -728,6 +757,7 @@ namespace ClassBuilderGenerator
                         .Append("\t");
 
                     builderContent
+                        .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                         .Append(item.OriginalNameInCamelCase)
                         .AppendLine(".Add(key, value);");
 
@@ -778,6 +808,7 @@ namespace ClassBuilderGenerator
                         .Append("\t")
                         .Append(item.OriginalName)
                         .Append(" = ")
+                        .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                         .Append(item.OriginalNameInCamelCase)
                         .AppendLine(",");
                 }
