@@ -42,7 +42,7 @@ namespace ClassBuilderGenerator.Options
 
         [Category("Generator")]
         [DisplayName("Add \"_\" prefix to the fields")]
-        [Description("This option controls if the \"_\" prefix will be added to the private fields")]
+        [Description("This option controls if the \"_\" prefix will be added to the private fields. If 'false' the \"this.\" prefix will be used.")]
         [DefaultValue(true)]
         public bool AddUnderscorePrefixToTheFields { get; set; } = false;
     }
