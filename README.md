@@ -184,10 +184,10 @@ Options:
 Example when 'true':
 ```c#
 ...
-public string _firstName;
-public string _lastName;
-public int _age;
-public string _email;
+private string _firstName;
+private string _lastName;
+private int _age;
+private string _email;
 ...
 
 public void WithFirstName(string firstName)
@@ -203,10 +203,10 @@ public void WithFirstName(string firstName)
 Example when 'false':
 ```c#
 ...
-public string firstName;
-public string lastName;
-public int age;
-public string email;
+private string firstName;
+private string lastName;
+private int age;
+private string email;
 ...
 
 public void WithFirstName(string firstName)
