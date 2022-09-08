@@ -190,7 +190,7 @@ public int _age;
 public string _email;
 ...
 
-public void UserBuilder WithFirstName(string firstName)
+public void WithFirstName(string firstName)
 {
   _firstName = firstName;
   return this;
@@ -209,7 +209,7 @@ public int age;
 public string email;
 ...
 
-public void UserBuilder WithFirstName(string firstName)
+public void WithFirstName(string firstName)
 {
   this.firstName = firstName;
   return this;
