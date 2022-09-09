@@ -109,6 +109,11 @@ namespace ClassBuilderGenerator.Core
             return RemoveNamespace(key);
         }
 
+        public static string GetIEnumerableType(this string str)
+        {
+            return RemoveNamespace(str.Substring(0, str.LastIndexOf("<")));
+        }
+
         public static string GetIEnumerableKeyType(this string str)
         {
             var key = str.Substring(str.IndexOf("<") + 1);

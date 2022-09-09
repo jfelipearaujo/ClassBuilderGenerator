@@ -42,5 +42,20 @@ namespace ClassBuilderGenerator.Core.Extensions
 
             return builder;
         }
+
+        public static StringBuilder AppendTab(this StringBuilder builder)
+        {
+            return AppendTab(builder, 1);
+        }
+
+        public static StringBuilder AppendTab(this StringBuilder builder, int quantity)
+        {
+            for (int i = 0; i < quantity; i++)
+            {
+                builder.Append("\t");
+            }
+
+            return builder;
+        }
     }
 }
