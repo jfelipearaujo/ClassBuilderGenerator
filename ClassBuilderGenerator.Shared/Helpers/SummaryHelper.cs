@@ -1,8 +1,9 @@
-﻿using ClassBuilderGenerator.Core.Extensions;
+﻿using Shared.Extensions;
+using Shared.Models;
 
 using System.Text;
 
-namespace ClassBuilderGenerator.Core
+namespace Shared.Helpers
 {
     public static class SummaryHelper
     {
@@ -73,43 +74,32 @@ namespace ClassBuilderGenerator.Core
             if (!configEnabled)
                 return stringBuilder;
 
-            var isCollection = new StringCheckBuilder()
-                .IsList(propertyInformation.Type)
-                .IsIEnumerable(propertyInformation.Type)
-                .IsICollection(propertyInformation.Type)
-                .IsCollection(propertyInformation.Type)
-                .CheckForOrCondition();
-
-            var isDictionary = new StringCheckBuilder()
-                .IsDictionary(propertyInformation.Type)
-                .CheckForOrCondition();
-
             var propType = propertyInformation.Type;
 
-            if (isCollection)
+            if (propertyInformation.CollectionType.IsCollection())
             {
-                var collectionType = propType.GetIEnumerableKeyType();
+                var collectionType = propType.GetEnumerableKeyType();
 
                 stringBuilder
                     .AppendTab(2).AppendLine("/// <summary>")
-                    .AppendTab(2).AppendFormat("/// Set a value of type <see cref=\"{0}\" /> of <see cref=\"{1}\" /> for the property <paramref name=\"{2}\">{2}</paramref>", propType.GetIEnumerableType() + "{T}", collectionType, propertyInformation.OriginalNameInCamelCase).AppendLine()
+                    .AppendTab(2).AppendFormat("/// Set a value of type <see cref=\"{0}\" /> of <see cref=\"{1}\" /> for the property <paramref name=\"{2}\">{2}</paramref>", propType.GetEnumerableType() + "{T}", collectionType, propertyInformation.OriginalNameInCamelCase).AppendLine()
                     .AppendTab(2).AppendLine("/// </summary>")
-                    .AppendTab(2).AppendFormat("/// <param name=\"{0}\">A value of type {1} of {2} will the defined for the property</param>", propertyInformation.OriginalNameInCamelCase, propType.GetIEnumerableType(), collectionType).AppendLine()
+                    .AppendTab(2).AppendFormat("/// <param name=\"{0}\">A value of type {1} of {2} will the defined for the property</param>", propertyInformation.OriginalNameInCamelCase, propType.GetEnumerableType(), collectionType).AppendLine()
                     .AppendTab(2).AppendFormat("/// <returns>Returns the <see cref=\"{0}\" /> with the property <paramref name=\"{1}\">{1}</paramref> defined</returns>", classInformation.BuilderName, propertyInformation.OriginalNameInCamelCase).AppendLine();
 
                 return stringBuilder;
             }
 
-            if (isDictionary)
+            if (propertyInformation.CollectionType.IsKeyValue())
             {
                 var dictionaryKey = propType.GetDictionaryKeyType();
                 var dictionaryValue = propType.GetDictionaryValueType();
 
                 stringBuilder
                     .AppendTab(2).AppendLine("/// <summary>")
-                    .AppendTab(2).AppendFormat("/// Set a value of type <see cref=\"{0}\" /> of <see cref=\"{1}\" /> and <see cref=\"{2}\" /> for the property <paramref name=\"{3}\">{3}</paramref>", propType.GetIEnumerableType() + "{T,T}", dictionaryKey, dictionaryValue, propertyInformation.OriginalNameInCamelCase).AppendLine()
+                    .AppendTab(2).AppendFormat("/// Set a value of type <see cref=\"{0}\" /> of <see cref=\"{1}\" /> and <see cref=\"{2}\" /> for the property <paramref name=\"{3}\">{3}</paramref>", propType.GetEnumerableType() + "{T,T}", dictionaryKey, dictionaryValue, propertyInformation.OriginalNameInCamelCase).AppendLine()
                     .AppendTab(2).AppendLine("/// </summary>")
-                    .AppendTab(2).AppendFormat("/// <param name=\"{0}\">A value of type {1} of {2} will the defined for the property</param>", propertyInformation.OriginalNameInCamelCase, propType.GetIEnumerableType(), dictionaryKey).AppendLine()
+                    .AppendTab(2).AppendFormat("/// <param name=\"{0}\">A value of type {1} of {2} will the defined for the property</param>", propertyInformation.OriginalNameInCamelCase, propType.GetEnumerableType(), dictionaryKey).AppendLine()
                     .AppendTab(2).AppendFormat("/// <returns>Returns the <see cref=\"{0}\" /> with the property <paramref name=\"{1}\">{1}</paramref> defined</returns>", classInformation.BuilderName, propertyInformation.OriginalNameInCamelCase).AppendLine();
 
                 return stringBuilder;

@@ -1,6 +1,7 @@
-using ClassBuilderGenerator.Core;
-
 using FluentAssertions;
+
+using Shared.Helpers;
+using Shared.Models;
 
 using Xunit;
 
@@ -113,7 +114,7 @@ namespace UnitTests
             // Arrange
 
             // Act
-            var result = input.GetIEnumerableKeyType();
+            var result = input.GetEnumerableKeyType();
 
             // Assert
             result.Should().Be(expectedResult);

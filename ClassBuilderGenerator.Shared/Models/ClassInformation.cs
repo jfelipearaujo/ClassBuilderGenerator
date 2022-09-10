@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ClassBuilderGenerator.Core
+namespace Shared.Models
 {
     public class ClassInformation
     {

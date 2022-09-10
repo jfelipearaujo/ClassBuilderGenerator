@@ -4,6 +4,7 @@
     <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <UseCodebase>true</UseCodebase>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -22,7 +23,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ClassBuilderGenerator</RootNamespace>
     <AssemblyName>ClassBuilderGenerator</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
@@ -53,34 +54,22 @@
   <ItemGroup>
     <Compile Include="ClassBuilderGenerator.cs" />
     <Compile Include="ClassBuilderGeneratorPackage.cs" />
-    <Compile Include="Core\BuilderData.cs" />
-    <Compile Include="Core\BuilderConstants.cs" />
-    <Compile Include="Core\ClassInformation.cs" />
-    <Compile Include="Core\CustomConstructor.cs" />
-    <Compile Include="Core\Extensions\StringBuilderExtensions.cs" />
-    <Compile Include="Core\ProjectHelper.cs" />
-    <Compile Include="Core\PropertyInformation.cs" />
-    <Compile Include="Core\StringCheckBuilder.cs" />
-    <Compile Include="Core\StringHelper.cs" />
-    <Compile Include="Core\SummaryHelper.cs" />
-    <Compile Include="Enums\MissingProperties.cs" />
     <Compile Include="Forms\FrmMissingProperty.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmMissingProperty.Designer.cs">
       <DependentUpon>FrmMissingProperty.cs</DependentUpon>
     </Compile>
+    <Compile Include="ProjectHelper.cs" />
     <Compile Include="Options\ClassBuilderGeneratorOptions.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Enums\MethodWithGenerator.cs" />
     <Compile Include="Forms\FrmConstructorSelector.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmConstructorSelector.Designer.cs">
       <DependentUpon>FrmConstructorSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Options\GeneratorOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -128,6 +117,8 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
+  <ItemGroup />
+  <Import Project="ClassBuilderGenerator.Shared\ClassBuilderGenerator.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

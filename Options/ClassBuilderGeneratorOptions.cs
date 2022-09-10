@@ -1,6 +1,6 @@
-﻿using ClassBuilderGenerator.Enums;
+﻿using Microsoft.VisualStudio.Shell;
 
-using Microsoft.VisualStudio.Shell;
+using Shared.Enums;
 
 using System.ComponentModel;
 

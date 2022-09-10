@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace ClassBuilderGenerator.Core.Extensions
+namespace Shared.Extensions
 {
     public static class StringBuilderExtensions
     {
@@ -43,11 +43,22 @@ namespace ClassBuilderGenerator.Core.Extensions
             return builder;
         }
 
+        /// <summary>
+        /// This extension method will add a single 'tab' to the string builder
+        /// </summary>
+        /// <param name="builder">StringBuilder that is been used</param>
+        /// <returns></returns>
         public static StringBuilder AppendTab(this StringBuilder builder)
         {
-            return AppendTab(builder, 1);
+            return builder.AppendTab(1);
         }
 
+        /// <summary>
+        /// This extension method will add a single 'tab' to the string builder
+        /// </summary>
+        /// <param name="builder">StringBuilder that is been used</param>
+        /// <param name="quantity">The number of tabs to be added</param>
+        /// <returns></returns>
         public static StringBuilder AppendTab(this StringBuilder builder, int quantity)
         {
             for (int i = 0; i < quantity; i++)

@@ -1,6 +1,6 @@
-﻿using ClassBuilderGenerator.Core.Extensions;
+﻿using FluentAssertions;
 
-using FluentAssertions;
+using Shared.Extensions;
 
 using System.Text;
 

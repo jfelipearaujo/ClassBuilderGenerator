@@ -1,4 +1,5 @@
-﻿using ClassBuilderGenerator.Core;
+﻿using Shared.Helpers;
+using Shared.Models;
 
 using System;
 using System.Collections.Generic;
@@ -29,9 +30,9 @@ namespace ClassBuilderGenerator.Forms
         {
             ForceCreatingOfMissingProperties = rbtnForceCreation.Checked;
 
-            if(ForceCreatingOfMissingProperties)
+            if (ForceCreatingOfMissingProperties)
             {
-                foreach(var item in lbMissingProperties.Items)
+                foreach (var item in lbMissingProperties.Items)
                 {
                     var propData = item.ToString();
 

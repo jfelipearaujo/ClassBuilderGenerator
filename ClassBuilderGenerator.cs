@@ -1,14 +1,16 @@
-﻿using ClassBuilderGenerator.Core;
-using ClassBuilderGenerator.Core.Extensions;
-using ClassBuilderGenerator.Enums;
-using ClassBuilderGenerator.Forms;
-using ClassBuilderGenerator.Options;
+﻿using ClassBuilderGenerator.Forms;
 
 using EnvDTE;
 
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+
+using Shared.Constants;
+using Shared.Enums;
+using Shared.Extensions;
+using Shared.Helpers;
+using Shared.Models;
 
 using System;
 using System.Collections.Generic;
@@ -407,8 +409,6 @@ namespace ClassBuilderGenerator
             StringBuilder builderContent,
             GeneratorOptions options)
         {
-            var stringCheckBuilder = new StringCheckBuilder();
-
             #region Usings
             foreach (var item in classInformation.Usings)
             {
@@ -426,10 +426,10 @@ namespace ClassBuilderGenerator
                 .AppendLine()
                 .AppendLine("{")
                 .AddClassSummary(options.GenerateSummaryInformation, classInformation)
-                .Append("\t")
+                .AppendTab()
                 .Append("public class ")
                 .AppendLine(classInformation.BuilderName)
-                .Append("\t")
+                .AppendTab()
                 .AppendLine("{");
             #endregion
 
@@ -439,8 +439,7 @@ namespace ClassBuilderGenerator
                 if (classInformation.CustomConstructor == null)
                 {
                     builderContent
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .Append("private ")
                         .Append(item.Type)
                         .Append(" ")
@@ -473,8 +472,7 @@ namespace ClassBuilderGenerator
                     if (addPropertyToBuilder)
                     {
                         builderContent
-                            .Append("\t")
-                            .Append("\t")
+                            .AppendTab(2)
                             .Append("private ")
                             .Append(item.Type)
                             .Append(" ")
@@ -490,20 +488,15 @@ namespace ClassBuilderGenerator
             builderContent
                 .AppendLine()
                 .AddBuilderConstructorSummary(options.GenerateSummaryInformation, classInformation)
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .Append("public ")
                 .Append(classInformation.BuilderName)
                 .AppendLine("()")
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .AppendLine("{")
-                .Append("\t")
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(3)
                 .AppendLine("Reset();")
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .AppendLine("}");
             #endregion
 
@@ -511,13 +504,11 @@ namespace ClassBuilderGenerator
             builderContent
                 .AppendLine()
                 .AddResetSummary(options.GenerateSummaryInformation, classInformation)
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .Append("public ")
                 .Append(classInformation.BuilderName)
                 .AppendLine(" Reset()")
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .AppendLine("{");
 
             foreach (var item in classInformation.Properties)
@@ -545,31 +536,23 @@ namespace ClassBuilderGenerator
                 if (addResetProperty)
                 {
                     builderContent
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(3)
                         .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
                         .Append(item.OriginalNameInCamelCase)
                         .Append(" = ");
 
-                    if (stringCheckBuilder
-                        .IsList(item.Type)
-                        .IsDictionary(item.Type)
-                        .IsCollection(item.Type)
-                        .CheckForOrCondition())
+                    if (item.CollectionType.CanBeInstantiated())
                     {
                         builderContent
                             .Append("new ")
                             .Append(item.Type)
                             .Append("()");
                     }
-                    else if (stringCheckBuilder
-                        .IsIEnumerable(item.Type)
-                        .CheckForOrCondition())
+                    else if (item.CollectionType.IsEnumerable())
                     {
                         builderContent
                             .Append("Enumerable.Empty<")
-                            .Append(item.Type.GetIEnumerableKeyType())
+                            .Append(item.Type.GetEnumerableKeyType())
                             .Append(">()");
                     }
                     else
@@ -583,12 +566,9 @@ namespace ClassBuilderGenerator
 
             builderContent
                 .AppendLine()
-                .Append("\t")
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(3)
                 .AppendLine("return this;")
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .AppendLine("}")
                 .AppendLine();
             #endregion
@@ -596,14 +576,6 @@ namespace ClassBuilderGenerator
             #region With methods
             foreach (var item in classInformation.Properties)
             {
-                var isCollection = stringCheckBuilder
-                    .IsList(item.Type)
-                    .IsIEnumerable(item.Type)
-                    .IsICollection(item.Type)
-                    .IsCollection(item.Type)
-                    .IsDictionary(item.Type)
-                    .CheckForOrCondition();
-
                 var addMethodWith = false;
 
                 switch (options.MethodWithGenerator)
@@ -622,7 +594,7 @@ namespace ClassBuilderGenerator
                         break;
                 }
 
-                if (options.GenerateWithMethodForCollections == false && isCollection)
+                if (options.GenerateWithMethodForCollections == false && item.CollectionType.IsValidCollection())
                 {
                     addMethodWith = false;
                 }
@@ -631,8 +603,7 @@ namespace ClassBuilderGenerator
                 {
                     builderContent
                         .AddWithSummary(options.GenerateSummaryInformation, classInformation, item)
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .Append("public ")
                         .Append(classInformation.BuilderName)
                         .Append(" With")
@@ -642,33 +613,23 @@ namespace ClassBuilderGenerator
                         .Append(" ")
                         .Append(item.OriginalNameInCamelCase)
                         .AppendLine(")")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .AppendLine("{")
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(3)
                         .AppendWhen(options.AddUnderscorePrefixToTheFields, "_", "this.")
                         .Append(item.OriginalNameInCamelCase)
                         .Append(" = ")
                         .Append(item.OriginalNameInCamelCase)
                         .AppendLine(";")
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(3)
                         .AppendLine("return this;")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .AppendLine("}")
                         .AppendLine();
                 }
 
                 if (options.GenerateListWithItemMethod
-                    && stringCheckBuilder
-                        .IsList(item.Type)
-                        .IsIEnumerable(item.Type)
-                        .IsCollection(item.Type)
-                        .CheckForOrCondition())
+                    && item.CollectionType.IsCollectionButNotKeyValue())
                 {
                     var start = item.Type.IndexOf("<") + 1;
                     var end = item.Type.LastIndexOf(">");
@@ -682,8 +643,7 @@ namespace ClassBuilderGenerator
 
                     builderContent
                         .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item, subListObject)
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .Append("public ")
                         .Append(classInformation.BuilderName)
                         .Append(" With")
@@ -691,12 +651,9 @@ namespace ClassBuilderGenerator
                         .Append("Item(")
                         .Append(subListObject)
                         .AppendLine(" item)")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .AppendLine("{")
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t");
+                        .AppendTab(3);
 
                     if (item.Type.RegexMatch("^IEnumerable"))
                     {
@@ -718,28 +675,22 @@ namespace ClassBuilderGenerator
                     }
 
                     builderContent
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(3)
                         .AppendLine("return this;")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .AppendLine("}")
                         .AppendLine();
                 }
 
                 if (options.GenerateListWithItemMethod
-                    && stringCheckBuilder
-                        .IsDictionary(item.Type)
-                        .CheckForOrCondition())
+                    && item.CollectionType.IsKeyValue())
                 {
                     var dicKey = item.Type.GetDictionaryKeyType();
                     var dicValue = item.Type.GetDictionaryValueType();
 
                     builderContent
                         .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item, dicValue)
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .Append("public ")
                         .Append(classInformation.BuilderName)
                         .Append(" With")
@@ -749,12 +700,9 @@ namespace ClassBuilderGenerator
                         .Append(" key, ")
                         .Append(dicValue)
                         .AppendLine(" value)")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .AppendLine("{")
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t");
+                        .AppendTab(3);
 
                     builderContent
                         .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
@@ -762,12 +710,9 @@ namespace ClassBuilderGenerator
                         .AppendLine(".Add(key, value);");
 
                     builderContent
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(3)
                         .AppendLine("return this;")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(2)
                         .AppendLine("}")
                         .AppendLine();
                 }
@@ -777,35 +722,26 @@ namespace ClassBuilderGenerator
             #region Build method
             builderContent
                 .AddBuildSummary(options.GenerateSummaryInformation, classInformation)
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .Append("public ")
                 .Append(classInformation.Name)
                 .AppendLine(" Build()")
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .AppendLine("{")
-                .Append("\t")
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(3)
                 .Append("return new ");
 
             if (classInformation.CustomConstructor == null)
             {
                 builderContent
                     .AppendLine(classInformation.Name)
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t")
+                    .AppendTab(3)
                     .AppendLine("{");
 
                 foreach (var item in classInformation.Properties)
                 {
                     builderContent
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t")
-                        .Append("\t")
+                        .AppendTab(4)
                         .Append(item.OriginalName)
                         .Append(" = ")
                         .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
@@ -814,9 +750,7 @@ namespace ClassBuilderGenerator
                 }
 
                 builderContent
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t")
+                    .AppendTab(3)
                     .AppendLine("};");
             }
             else
@@ -827,10 +761,9 @@ namespace ClassBuilderGenerator
             }
 
             builderContent
-                .Append("\t")
-                .Append("\t")
+                .AppendTab(2)
                 .AppendLine("}")
-                .Append("\t")
+                .AppendTab()
                 .AppendLine("}")
                 .Append("}");
             #endregion

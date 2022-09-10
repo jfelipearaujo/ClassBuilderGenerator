@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using Shared.Constants;
+using Shared.Models;
+
+using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace ClassBuilderGenerator.Core
+namespace Shared.Helpers
 {
     public static class StringHelper
     {
@@ -99,25 +102,28 @@ namespace ClassBuilderGenerator.Core
         {
             var dicBase = str.Split(',').First();
             var key = dicBase.Substring(dicBase.IndexOf("<") + 1);
-            return RemoveNamespace(key);
+
+            return key.RemoveNamespace();
         }
 
         public static string GetDictionaryValueType(this string str)
         {
             var dicBase = str.Split(',').ElementAt(1).TrimStart();
             var key = dicBase.Substring(0, dicBase.LastIndexOf(">"));
-            return RemoveNamespace(key);
+
+            return key.RemoveNamespace();
         }
 
-        public static string GetIEnumerableType(this string str)
+        public static string GetEnumerableType(this string str)
         {
-            return RemoveNamespace(str.Substring(0, str.LastIndexOf("<")));
+            return str.Substring(0, str.LastIndexOf("<")).RemoveNamespace();
         }
 
-        public static string GetIEnumerableKeyType(this string str)
+        public static string GetEnumerableKeyType(this string str)
         {
             var key = str.Substring(str.IndexOf("<") + 1);
-            return RemoveNamespace(key.Substring(0, key.LastIndexOf(">")));
+
+            return key.Substring(0, key.LastIndexOf(">")).RemoveNamespace();
         }
     }
 }
