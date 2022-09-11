@@ -5,10 +5,20 @@
 <h2 align="center">
 Class Builder Generator
 </h2>
-
+ 
 <p align="center">
-  <a href="https://github.com/jfelipearaujo/ClassBuilderGenerator/network/members"><img src="https://img.shields.io/github/forks/jfelipearaujo/ClassBuilderGenerator"></a>
-  <a href="https://github.com/jfelipearaujo/ClassBuilderGenerator/stargazers"><img src="https://img.shields.io/github/stars/jfelipearaujo/ClassBuilderGenerator"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=JoseFelipeBlumAraujo.ClassBuilderGenerator">
+    <img src="https://vsmarketplacebadge.apphb.com/installs-short/JoseFelipeBlumAraujo.ClassBuilderGenerator.svg?color=blue">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=JoseFelipeBlumAraujo.ClassBuilderGenerator">
+    <img src="https://vsmarketplacebadge.apphb.com/rating-short/JoseFelipeBlumAraujo.ClassBuilderGenerator.svg?color=blue">
+  </a>
+  <a href="https://github.com/jfelipearaujo/ClassBuilderGenerator/network/members">
+    <img src="https://img.shields.io/github/forks/jfelipearaujo/ClassBuilderGenerator?color=blue">
+  </a>
+  <a href="https://github.com/jfelipearaujo/ClassBuilderGenerator/stargazers">
+    <img src="https://img.shields.io/github/stars/jfelipearaujo/ClassBuilderGenerator?color=blue">
+  </a>
 </p>
 
 <p align="center">
