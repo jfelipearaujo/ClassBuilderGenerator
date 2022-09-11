@@ -111,7 +111,7 @@ namespace UnitTests.Helpers
             },
         };
 
-        [Theory]
+        [Theory(DisplayName = "Should generate summary information of class")]
         [MemberData(nameof(AddClassSummaryTestData))]
         public void AddClassSummaryTests(bool configEnabled, ClassInformation classInformation, string expected)
         {
@@ -127,7 +127,7 @@ namespace UnitTests.Helpers
             result.Should().Be(expected);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Should generate summary information of builder constructor")]
         [MemberData(nameof(AddBuilderConstructorSummaryTestData))]
         public void AddBuilderConstructorSummaryTests(bool configEnabled, ClassInformation classInformation, string expected)
         {
@@ -143,7 +143,7 @@ namespace UnitTests.Helpers
             result.Should().Be(expected);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Should generate summary information of Reset method")]
         [MemberData(nameof(AddResetSummaryTestData))]
         public void AddResetSummaryTests(bool configEnabled, ClassInformation classInformation, string expected)
         {
@@ -159,7 +159,7 @@ namespace UnitTests.Helpers
             result.Should().Be(expected);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Should generate summary information of With methods")]
         [MemberData(nameof(AddWithSummaryTestData))]
         public void AddWithSummaryTests(bool configEnabled, ClassInformation classInformation, PropertyInformation propertyInformation, string expected)
         {
@@ -175,7 +175,7 @@ namespace UnitTests.Helpers
             result.Should().Be(expected);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Should generate summary information of WithItem method")]
         [MemberData(nameof(AddWithCollectionItemSummaryTestData))]
         public void AddWithCollectionItemSummaryTests(bool configEnabled, ClassInformation classInformation, PropertyInformation propertyInformation, string expected)
         {
@@ -191,7 +191,7 @@ namespace UnitTests.Helpers
             result.Should().Be(expected);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Should generate summary information of Build method")]
         [MemberData(nameof(AddBuildSummaryTestData))]
         public void AddBuildSummaryTests(bool configEnabled, ClassInformation classInformation, string expected)
         {

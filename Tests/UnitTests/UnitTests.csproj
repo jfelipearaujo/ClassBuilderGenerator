@@ -24,4 +24,10 @@
     <ProjectReference Include="..\..\ClassBuilderGenerator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Core\BuilderResult.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

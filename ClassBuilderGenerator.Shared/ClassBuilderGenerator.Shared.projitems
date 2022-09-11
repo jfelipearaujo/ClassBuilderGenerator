@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Constants\BuilderConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Core\Generator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\CollectionType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\MethodWithGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\MissingProperties.cs" />
