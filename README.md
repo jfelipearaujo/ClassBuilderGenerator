@@ -295,6 +295,7 @@ Currently this behavior (WithItem) only supports properties with types: **List**
 | `1.5.2`| 07/19/2022 | Fixed the release notes link |
 | `1.5.3`| 09/06/2022 | Now the dev can choose to add or not the "_" prefix to the fields.  |
 | `1.5.4`| 09/10/2022 | Fixed some summary information and executed a major refactoring in the classes |
+| `1.5.5`| 09/11/2022 | Updated some internal references |
 
 <p align="center">
 <br/><br/>Did you find a <b>bug</b> or have a <b>suggestion</b> to make?<br/>Use the <b>issue tracker</b> to send all the necessary information and as soon as possible I will analyze it.<br/><br/>Thank you!
