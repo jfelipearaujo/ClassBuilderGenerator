@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ClassBuilderGenerator.csproj" />
+    <ProjectReference Include="..\..\src\ClassBuilderGenerator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
