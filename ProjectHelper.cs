@@ -4,11 +4,13 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
+using Shared.Constants;
+
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace ClassBuilderGenerator.Core
+namespace ClassBuilderGenerator
 {
     public static class ProjectHelper
     {
@@ -19,7 +21,7 @@ namespace ClassBuilderGenerator.Core
             hierarchy = null;
             itemid = VSConstants.VSITEMID_NIL;
 
-            if(!(Package.GetGlobalService(typeof(SVsShellMonitorSelection)) is IVsMonitorSelection monitorSelection)
+            if (!(Package.GetGlobalService(typeof(SVsShellMonitorSelection)) is IVsMonitorSelection monitorSelection)
                 || !(Package.GetGlobalService(typeof(SVsSolution)) is IVsSolution solution))
             {
                 return false;
@@ -35,23 +37,23 @@ namespace ClassBuilderGenerator.Core
                     out var multiItemSelect,
                     out selectionContainerPtr);
 
-                if(ErrorHandler.Failed(hr) || hierarchyPtr == IntPtr.Zero || itemid == VSConstants.VSITEMID_NIL)
+                if (ErrorHandler.Failed(hr) || hierarchyPtr == IntPtr.Zero || itemid == VSConstants.VSITEMID_NIL)
                 {
                     return false;
                 }
 
-                if(multiItemSelect != null)
+                if (multiItemSelect != null)
                     return false;
 
-                if(itemid == VSConstants.VSITEMID_ROOT)
+                if (itemid == VSConstants.VSITEMID_ROOT)
                     return false;
 
                 hierarchy = Marshal.GetObjectForIUnknown(hierarchyPtr) as IVsHierarchy;
 
-                if(hierarchy == null)
+                if (hierarchy == null)
                     return false;
 
-                if(ErrorHandler.Failed(solution.GetGuidOfProject(hierarchy, out Guid guidProjectID)))
+                if (ErrorHandler.Failed(solution.GetGuidOfProject(hierarchy, out Guid guidProjectID)))
                 {
                     return false;
                 }
@@ -60,12 +62,12 @@ namespace ClassBuilderGenerator.Core
             }
             finally
             {
-                if(selectionContainerPtr != IntPtr.Zero)
+                if (selectionContainerPtr != IntPtr.Zero)
                 {
                     Marshal.Release(selectionContainerPtr);
                 }
 
-                if(hierarchyPtr != IntPtr.Zero)
+                if (hierarchyPtr != IntPtr.Zero)
                 {
                     Marshal.Release(hierarchyPtr);
                 }
@@ -76,14 +78,14 @@ namespace ClassBuilderGenerator.Core
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if(ErrorHandler.Failed(project.GetMkDocument(VSConstants.VSITEMID_ROOT, out var projectFullPath)))
+            if (ErrorHandler.Failed(project.GetMkDocument(VSConstants.VSITEMID_ROOT, out var projectFullPath)))
                 return "err";
 
             string projectExtension = Path.GetExtension(projectFullPath);
 
-            foreach(string supportedExtension in BuilderConstants.SupportedProjectExtensions)
+            foreach (string supportedExtension in BuilderConstants.SupportedProjectExtensions)
             {
-                if(projectExtension.Equals(supportedExtension, StringComparison.InvariantCultureIgnoreCase))
+                if (projectExtension.Equals(supportedExtension, StringComparison.InvariantCultureIgnoreCase))
                 {
                     return string.Empty;
                 }
@@ -96,7 +98,7 @@ namespace ClassBuilderGenerator.Core
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if(ErrorHandler.Failed(project.GetMkDocument(itemid, out var itemFullPath)))
+            if (ErrorHandler.Failed(project.GetMkDocument(itemid, out var itemFullPath)))
                 return false;
 
             bool isAlreadyBuilderFile = IsItemBuilderItem(project, itemid);
@@ -104,21 +106,21 @@ namespace ClassBuilderGenerator.Core
             var transformFileInfo = new FileInfo(itemFullPath);
             bool isCSharpFile = transformFileInfo.Name.EndsWith(".cs");
 
-            return (isCSharpFile && !isAlreadyBuilderFile);
+            return isCSharpFile && !isAlreadyBuilderFile;
         }
 
         public static bool IsItemBuilderItem(IVsProject vsProject, uint itemid)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if(!(vsProject is IVsBuildPropertyStorage buildPropertyStorage))
+            if (!(vsProject is IVsBuildPropertyStorage buildPropertyStorage))
                 return false;
 
             bool isItemBuilderFile = false;
 
             buildPropertyStorage.GetItemAttribute(itemid, "IsBuilderFile", out var value);
 
-            if(string.Compare("true", value, true) == 0)
+            if (string.Compare("true", value, true) == 0)
                 isItemBuilderFile = true;
 
             return isItemBuilderFile;
@@ -144,7 +146,7 @@ namespace ClassBuilderGenerator.Core
             ErrorHandler.ThrowOnFailure(pHierarchy.GetProperty(itemID,
                 (int)__VSHPROPID.VSHPROPID_ExtObject, out var propertyValue));
 
-            if(!(propertyValue is ProjectItem projectItem))
+            if (!(propertyValue is ProjectItem projectItem))
                 return null;
 
             return projectItem;

@@ -1,13 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31515.178
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassBuilderGenerator", "ClassBuilderGenerator.csproj", "{C0325195-12C3-4724-AA43-D8B9FB7BB375}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "Tests\UnitTests\UnitTests.csproj", "{5CDB9BDF-1501-4FB8-A0D1-E7B1CCD37F1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "Tests\UnitTests\UnitTests.csproj", "{5CDB9BDF-1501-4FB8-A0D1-E7B1CCD37F1E}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "ClassBuilderGenerator.Shared\Shared.shproj", "{CC2E734B-A4E2-42DB-A907-21D31385D0EF}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ClassBuilderGenerator.Shared\ClassBuilderGenerator.Shared.projitems*{c0325195-12c3-4724-aa43-d8b9fb7bb375}*SharedItemsImports = 4
+		ClassBuilderGenerator.Shared\ClassBuilderGenerator.Shared.projitems*{cc2e734b-a4e2-42db-a907-21d31385d0ef}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

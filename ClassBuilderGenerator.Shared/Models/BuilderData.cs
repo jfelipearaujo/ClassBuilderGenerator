@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace ClassBuilderGenerator.Core
+namespace Shared.Models
 {
     public class BuilderData
     {

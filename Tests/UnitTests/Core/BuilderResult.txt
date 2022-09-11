@@ -1,0 +1,189 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp1
+{
+	/// <summary>
+	/// Builder for the class <see cref="User">User</see>
+	/// </summary>
+	public class UserBuilder
+	{
+		private string _firstName;
+		private string _lastName;
+		private string _email;
+		private string _phone;
+		private int _age;
+		private List<string> _addresses;
+		private IEnumerable<int> _ages;
+		private Dictionary<string, int> _phones;
+
+		/// <summary>
+		/// Create a new instance for the <see cref="UserBuilder">UserBuilder</see>
+		/// </summary>
+		public UserBuilder()
+		{
+			Reset();
+		}
+
+		/// <summary>
+		/// Reset all properties' to the default value
+		/// </summary>
+		/// <returns>Returns the <see cref="UserBuilder">UserBuilder</see> with the properties reseted</returns>
+		public UserBuilder Reset()
+		{
+			_firstName = default;
+			_lastName = default;
+			_email = default;
+			_phone = default;
+			_age = default;
+			_addresses = new List<string>();
+			_ages = Enumerable.Empty<int>();
+			_phones = new Dictionary<string, int>();
+
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="string" /> for the property <paramref name="firstName">firstName</paramref>
+		/// </summary>
+		/// <param name="firstName">A value of type string will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="firstName">firstName</paramref> defined</returns>
+		public UserBuilder WithFirstName(string firstName)
+		{
+			_firstName = firstName;
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="string" /> for the property <paramref name="lastName">lastName</paramref>
+		/// </summary>
+		/// <param name="lastName">A value of type string will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="lastName">lastName</paramref> defined</returns>
+		public UserBuilder WithLastName(string lastName)
+		{
+			_lastName = lastName;
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="string" /> for the property <paramref name="email">email</paramref>
+		/// </summary>
+		/// <param name="email">A value of type string will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="email">email</paramref> defined</returns>
+		public UserBuilder WithEmail(string email)
+		{
+			_email = email;
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="string" /> for the property <paramref name="phone">phone</paramref>
+		/// </summary>
+		/// <param name="phone">A value of type string will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="phone">phone</paramref> defined</returns>
+		public UserBuilder WithPhone(string phone)
+		{
+			_phone = phone;
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="int" /> for the property <paramref name="age">age</paramref>
+		/// </summary>
+		/// <param name="age">A value of type int will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="age">age</paramref> defined</returns>
+		public UserBuilder WithAge(int age)
+		{
+			_age = age;
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="List{T}" /> of <see cref="string" /> for the property <paramref name="addresses">addresses</paramref>
+		/// </summary>
+		/// <param name="addresses">A value of type List of string will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="addresses">addresses</paramref> defined</returns>
+		public UserBuilder WithAddresses(List<string> addresses)
+		{
+			_addresses = addresses;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="string"/> will be added to the collection Addresses
+		/// </summary>
+		/// <param name="item">A value of type string will the added to the collection</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the collection Addresses with one more item</returns>
+		public UserBuilder WithAddressesItem(string item)
+		{
+			_addresses.Add(item);
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="IEnumerable{T}" /> of <see cref="int" /> for the property <paramref name="ages">ages</paramref>
+		/// </summary>
+		/// <param name="ages">A value of type IEnumerable of int will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="ages">ages</paramref> defined</returns>
+		public UserBuilder WithAges(IEnumerable<int> ages)
+		{
+			_ages = ages;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="int"/> will be added to the collection Ages
+		/// </summary>
+		/// <param name="item">A value of type int will the added to the collection</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the collection Ages with one more item</returns>
+		public UserBuilder WithAgesItem(int item)
+		{
+			_ages = Enumerable.Append(_ages, item);
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="Dictionary{T,T}" /> of <see cref="string" /> and <see cref="int" /> for the property <paramref name="phones">phones</paramref>
+		/// </summary>
+		/// <param name="phones">A value of type Dictionary of string will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="phones">phones</paramref> defined</returns>
+		public UserBuilder WithPhones(Dictionary<string, int> phones)
+		{
+			_phones = phones;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="string, int"/> will be added to the collection Phones
+		/// </summary>
+		/// <param name="item">A value of type string, int will the added to the collection</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the collection Phones with one more item</returns>
+		public UserBuilder WithPhonesItem(string key, int value)
+		{
+			_phones.Add(key, value);
+			return this;
+		}
+
+		/// <summary>
+		/// Build a class of type <see cref="User">User</see> with all the defined values
+		/// </summary>
+		/// <returns>Returns a <see cref="User">User</see> class</returns>
+		public User Build()
+		{
+			return new User
+			{
+				FirstName = _firstName,
+				LastName = _lastName,
+				Email = _email,
+				Phone = _phone,
+				Age = _age,
+				Addresses = _addresses,
+				Ages = _ages,
+				Phones = _phones,
+			};
+		}
+	}
+}
