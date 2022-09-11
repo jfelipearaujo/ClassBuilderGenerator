@@ -15,9 +15,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Enums\MissingProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\CollectionTypeExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\StringBuilderExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helpers\Class1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\CapitalizationHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\CollectionHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StringHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\DictionaryHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\EnumerableHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\NamespaceHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SummaryHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BuilderData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ClassInformation.cs" />

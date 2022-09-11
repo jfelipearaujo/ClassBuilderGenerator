@@ -13,16 +13,9 @@ namespace Shared.Helpers
                 return stringBuilder;
 
             stringBuilder
-                .AppendTab()
-                .AppendLine("/// <summary>")
-                .AppendTab()
-                .Append("/// Builder for the class <see cref=\"")
-                .Append(classInformation.Name)
-                .Append("\">")
-                .Append(classInformation.Name)
-                .AppendLine("</see>")
-                .AppendTab()
-                .AppendLine("/// </summary>");
+                .AppendTab().AppendLine("/// <summary>")
+                .AppendTab().AppendFormat("/// Builder for the class <see cref=\"{0}\">{0}</see>", classInformation.Name).AppendLine()
+                .AppendTab().AppendLine("/// </summary>");
 
             return stringBuilder;
         }
@@ -33,16 +26,9 @@ namespace Shared.Helpers
                 return stringBuilder;
 
             stringBuilder
-                .AppendTab(2)
-                .AppendLine("/// <summary>")
-                .AppendTab(2)
-                .Append("/// Create a new instance for the <see cref=\"")
-                .Append(classInformation.BuilderName)
-                .Append("\">")
-                .Append(classInformation.BuilderName)
-                .AppendLine("</see>")
-                .AppendTab(2)
-                .AppendLine("/// </summary>");
+                .AppendTab(2).AppendLine("/// <summary>")
+                .AppendTab(2).AppendFormat("/// Create a new instance for the <see cref=\"{0}\">{0}</see>", classInformation.BuilderName).AppendLine()
+                .AppendTab(2).AppendLine("/// </summary>");
 
             return stringBuilder;
         }
@@ -53,18 +39,10 @@ namespace Shared.Helpers
                 return stringBuilder;
 
             stringBuilder
-                .AppendTab(2)
-                .AppendLine("/// <summary>")
-                .AppendTab(2)
-                .AppendLine("/// Reset all properties' to the default value")
-                .AppendTab(2)
-                .AppendLine("/// </summary>")
-                .AppendTab(2)
-                .Append("/// <returns>Returns the <see cref=\"")
-                .Append(classInformation.BuilderName)
-                .Append("\">")
-                .Append(classInformation.BuilderName)
-                .AppendLine("</see> with the properties reseted</returns>");
+                .AppendTab(2).AppendLine("/// <summary>")
+                .AppendTab(2).AppendLine("/// Reset all properties' to the default value")
+                .AppendTab(2).AppendLine("/// </summary>")
+                .AppendTab(2).AppendFormat("/// <returns>Returns the <see cref=\"{0}\">{0}</see> with the properties reseted</returns>", classInformation.BuilderName).AppendLine();
 
             return stringBuilder;
         }
@@ -115,17 +93,17 @@ namespace Shared.Helpers
             return stringBuilder;
         }
 
-        public static StringBuilder AddWithCollectionItemSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation, PropertyInformation propertyInformation, string listObjectType)
+        public static StringBuilder AddWithCollectionItemSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation, PropertyInformation propertyInformation)
         {
             if (!configEnabled)
                 return stringBuilder;
 
             stringBuilder
                 .AppendTab(2).AppendLine("/// <summary>")
-                .AppendTab(2).AppendFormat("/// An item of type <see cref=\"{0}\"/> will be added to the collection {1}", listObjectType, propertyInformation.OriginalName.ToTitleCase()).AppendLine()
+                .AppendTab(2).AppendFormat("/// An item of type <see cref=\"{0}\"/> will be added to the collection {1}", propertyInformation.Type.GetEnumerableKeyType(), propertyInformation.OriginalName.ToTitleCase()).AppendLine()
                 .AppendTab(2).AppendLine("/// </summary>")
-                .AppendTab(2).AppendFormat("/// <param name=\"item\">A value of type {0} will the added to the collection</param>", listObjectType).AppendLine()
-                .AppendTab(2).Append("/// <returns>Returns the <see cref=\"").Append(classInformation.BuilderName).Append("\">").Append(classInformation.BuilderName).Append("</see> with the collection ").Append(propertyInformation.OriginalName.ToTitleCase()).AppendLine(" with one more item</returns>");
+                .AppendTab(2).AppendFormat("/// <param name=\"item\">A value of type {0} will the added to the collection</param>", propertyInformation.Type.GetEnumerableKeyType()).AppendLine()
+                .AppendTab(2).AppendFormat("/// <returns>Returns the <see cref=\"{0}\" /> with the collection {1} with one more item</returns>", classInformation.BuilderName, propertyInformation.OriginalName.ToTitleCase()).AppendLine();
 
             return stringBuilder;
         }
@@ -136,22 +114,10 @@ namespace Shared.Helpers
                 return stringBuilder;
 
             stringBuilder
-                .AppendTab(2)
-                .AppendLine("/// <summary>")
-                .AppendTab(2)
-                .Append("/// Build a class of type <see cref=\"")
-                .Append(classInformation.Name)
-                .Append("\">")
-                .Append(classInformation.Name)
-                .AppendLine("</see> with all the defined values")
-                .AppendTab(2)
-                .AppendLine("/// </summary>")
-                .AppendTab(2)
-                .Append("/// <returns>Returns a <see cref=\"")
-                .Append(classInformation.Name)
-                .Append("\">")
-                .Append(classInformation.Name)
-                .AppendLine("</see> class</returns>");
+                .AppendTab(2).AppendLine("/// <summary>")
+                .AppendTab(2).AppendFormat("/// Build a class of type <see cref=\"{0}\">{0}</see> with all the defined values", classInformation.Name).AppendLine()
+                .AppendTab(2).AppendLine("/// </summary>")
+                .AppendTab(2).AppendFormat("/// <returns>Returns a <see cref=\"{0}\">{0}</see> class</returns>", classInformation.Name).AppendLine();
 
             return stringBuilder;
         }

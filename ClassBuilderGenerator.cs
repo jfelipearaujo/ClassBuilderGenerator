@@ -631,31 +631,21 @@ namespace ClassBuilderGenerator
                 if (options.GenerateListWithItemMethod
                     && item.CollectionType.IsCollectionButNotKeyValue())
                 {
-                    var start = item.Type.IndexOf("<") + 1;
-                    var end = item.Type.LastIndexOf(">");
-                    var subListObject = item.Type.Substring(start, end - start);
-
-                    if (subListObject.Contains("."))
-                    {
-                        subListObject = subListObject
-                            .Substring(subListObject.LastIndexOf(".") + 1);
-                    }
-
                     builderContent
-                        .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item, subListObject)
+                        .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item)
                         .AppendTab(2)
                         .Append("public ")
                         .Append(classInformation.BuilderName)
                         .Append(" With")
                         .Append(item.OriginalName.ToTitleCase())
                         .Append("Item(")
-                        .Append(subListObject)
+                        .Append(item.Type.GetEnumerableKeyType())
                         .AppendLine(" item)")
                         .AppendTab(2)
                         .AppendLine("{")
                         .AppendTab(3);
 
-                    if (item.Type.RegexMatch("^IEnumerable"))
+                    if (item.CollectionType.IsEnumerable())
                     {
                         builderContent
                             .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
@@ -685,20 +675,17 @@ namespace ClassBuilderGenerator
                 if (options.GenerateListWithItemMethod
                     && item.CollectionType.IsKeyValue())
                 {
-                    var dicKey = item.Type.GetDictionaryKeyType();
-                    var dicValue = item.Type.GetDictionaryValueType();
-
                     builderContent
-                        .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item, dicValue)
+                        .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item)
                         .AppendTab(2)
                         .Append("public ")
                         .Append(classInformation.BuilderName)
                         .Append(" With")
                         .Append(item.OriginalName.ToTitleCase())
                         .Append("Item(")
-                        .Append(dicKey)
+                        .Append(item.Type.GetDictionaryKeyType())
                         .Append(" key, ")
-                        .Append(dicValue)
+                        .Append(item.Type.GetDictionaryValueType())
                         .AppendLine(" value)")
                         .AppendTab(2)
                         .AppendLine("{")

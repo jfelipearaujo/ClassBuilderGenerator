@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Shared.Helpers
 {
@@ -21,7 +22,7 @@ namespace Shared.Helpers
 
         public static CollectionType GetCollectionType(string propertyType)
         {
-            KeyValuePair<string, CollectionType> collectionType = collectionTypesPattern.FirstOrDefault(x => propertyType.RegexMatch(x.Key));
+            KeyValuePair<string, CollectionType> collectionType = collectionTypesPattern.FirstOrDefault(x => Regex.IsMatch(propertyType, x.Key));
 
             if (collectionType.Key is null)
                 return CollectionType.None;
