@@ -37,6 +37,7 @@ Class Builder Generator
   - [Generator - Generate summary information](#generator---generate-summary-information)
   - [Generator - With method generator handler](#generator---with-method-generator-handler)
   - [Generator - Generate With method for collections](#generator---generate-with-method-for-collections)
+  - [Generator - Generator - Add "_" prefix to the fields](#generator---add-_-prefix-to-the-fields)
   - [Lists - Generate WithItem method](#lists---generate-withitem-method)
 - [Release notes](#release-notes)  
 
