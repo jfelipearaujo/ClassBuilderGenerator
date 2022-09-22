@@ -313,7 +313,7 @@ namespace Shared.Core
             builderContent
                 .AddBuildSummary(options.GenerateSummaryInformation, classInformation)
                 .AppendTab(2)
-                .Append("public ")
+                .AppendWhen(classInformation.IsPublicAccessible, "public ", "internal ")
                 .Append(classInformation.Name)
                 .AppendLine(" Build()")
                 .AppendTab(2)

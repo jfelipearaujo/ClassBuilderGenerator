@@ -22,6 +22,7 @@ namespace Shared.Models
         public string Name { get; set; }
         public string BuilderName => $"{Name}Builder";
         public string Namespace { get; set; }
+        public bool IsPublicAccessible { get; set; }
         public CustomConstructor CustomConstructor { get; set; }
         public List<string> Usings { get; set; }
         public Dictionary<string, IEnumerable<PropertyInformation>> Constructors { get; set; }

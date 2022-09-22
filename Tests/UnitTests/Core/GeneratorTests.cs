@@ -22,6 +22,7 @@ namespace UnitTests.Core
             {
                 Name = "User",
                 Namespace = "ConsoleApp1",
+                IsPublicAccessible = true,
                 Properties = new List<PropertyInformation>
                 {
                     new PropertyInformation
