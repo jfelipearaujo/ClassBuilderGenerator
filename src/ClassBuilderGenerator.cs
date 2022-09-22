@@ -279,6 +279,8 @@ namespace ClassBuilderGenerator
 
                             CodeClass codeClass = codeElement as CodeClass;
 
+                            classInformation.IsPublicAccessible = (codeClass.Access == vsCMAccess.vsCMAccessPublic);
+
                             for (int k = 1; k <= codeClass.Members.Count; k++)
                             {
                                 CodeElement subCodeElement = codeClass.Members.Item(k);
