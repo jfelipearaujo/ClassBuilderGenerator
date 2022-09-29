@@ -7,17 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassBuilderGenerator", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "tests\UnitTests\UnitTests.csproj", "{5CDB9BDF-1501-4FB8-A0D1-E7B1CCD37F1E}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "src\ClassBuilderGenerator.Shared\Shared.shproj", "{CC2E734B-A4E2-42DB-A907-21D31385D0EF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5F638930-B1D9-4C0A-876B-F2BF40C9A4DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FD0E38D1-FC95-4D27-8AD4-3A4EC3491E77}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\ClassBuilderGenerator.Shared\ClassBuilderGenerator.Shared.projitems*{c0325195-12c3-4724-aa43-d8b9fb7bb375}*SharedItemsImports = 4
-		src\ClassBuilderGenerator.Shared\ClassBuilderGenerator.Shared.projitems*{cc2e734b-a4e2-42db-a907-21d31385d0ef}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -48,7 +42,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C0325195-12C3-4724-AA43-D8B9FB7BB375} = {5F638930-B1D9-4C0A-876B-F2BF40C9A4DD}
 		{5CDB9BDF-1501-4FB8-A0D1-E7B1CCD37F1E} = {FD0E38D1-FC95-4D27-8AD4-3A4EC3491E77}
-		{CC2E734B-A4E2-42DB-A907-21D31385D0EF} = {5F638930-B1D9-4C0A-876B-F2BF40C9A4DD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D7BA0AA3-6D8D-418A-A139-FAE8CE5429A3}

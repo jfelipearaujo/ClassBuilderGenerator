@@ -1,4 +1,4 @@
-﻿namespace Shared.Helpers
+﻿namespace ClassBuilderGenerator.Helpers
 {
     public static class EnumerableHelper
     {

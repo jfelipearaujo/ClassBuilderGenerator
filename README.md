@@ -299,6 +299,7 @@ Currently this behavior (WithItem) only supports properties with types: **List**
 | `1.5.5`| 09/11/2022 | Updated some internal references |
 | `1.5.5.1`| 09/21/2022 | Fixed an issue with the Visual Studio package version |
 | `1.5.6`| 09/21/2022 | Now the builder will respect the access modifier of base class |
+| `1.5.7`| 09/29/2022 | Adjusted the Reset method for more types and updated internal references |
 
 <p align="center">
 <br/><br/>Did you find a <b>bug</b> or have a <b>suggestion</b> to make?<br/>Use the <b>issue tracker</b> to send all the necessary information and as soon as possible I will analyze it.<br/><br/>Thank you!

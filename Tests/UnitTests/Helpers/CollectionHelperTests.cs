@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
+﻿using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Helpers;
 
-using Shared.Enums;
-using Shared.Helpers;
+using FluentAssertions;
 
 using Xunit;
 

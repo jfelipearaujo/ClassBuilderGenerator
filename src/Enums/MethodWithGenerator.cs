@@ -1,4 +1,4 @@
-﻿namespace Shared.Enums
+﻿namespace ClassBuilderGenerator.Enums
 {
     public enum MethodWithGenerator
     {

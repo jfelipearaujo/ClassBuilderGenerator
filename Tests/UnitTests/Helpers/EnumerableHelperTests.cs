@@ -1,6 +1,6 @@
-﻿using FluentAssertions;
+﻿using ClassBuilderGenerator.Helpers;
 
-using Shared.Helpers;
+using FluentAssertions;
 
 using Xunit;
 

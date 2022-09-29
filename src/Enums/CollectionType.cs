@@ -1,4 +1,4 @@
-﻿namespace Shared.Enums
+﻿namespace ClassBuilderGenerator.Enums
 {
     public enum CollectionType
     {
@@ -10,6 +10,8 @@
         ICollection,
         Collection,
         IDictionary,
-        Dictionary
+        Dictionary,
+        Array,
+        Matrix2Dim
     }
 }

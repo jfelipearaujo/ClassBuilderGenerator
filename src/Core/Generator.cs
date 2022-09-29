@@ -1,12 +1,12 @@
-﻿using Shared.Enums;
-using Shared.Extensions;
-using Shared.Helpers;
-using Shared.Models;
+﻿using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Extensions;
+using ClassBuilderGenerator.Helpers;
+using ClassBuilderGenerator.Models;
 
 using System.Linq;
 using System.Text;
 
-namespace Shared.Core
+namespace ClassBuilderGenerator.Core
 {
     public static class Generator
     {
@@ -144,14 +144,44 @@ namespace Shared.Core
                         .Append(item.OriginalNameInCamelCase)
                         .Append(" = ");
 
-                    if (item.CollectionType.CanBeInstantiated())
+                    if (item.CollectionType.IsListType())
                     {
                         builderContent
-                            .Append("new ")
-                            .Append(item.Type)
-                            .Append("()");
+                            .Append("new List<")
+                            .Append(item.Type.GetEnumerableKeyType())
+                            .Append(">()");
                     }
-                    else if (item.CollectionType.IsEnumerable())
+                    else if (item.CollectionType.IsArrayType())
+                    {
+                        builderContent
+                            .Append("Array.Empty<")
+                            .Append(item.Type.GetArrayType())
+                            .Append(">()");
+                    }
+                    else if (item.CollectionType.IsMatrix2DimType())
+                    {
+                        builderContent
+                            .Append("Array.Empty<")
+                            .Append(item.Type.GetArrayType())
+                            .Append("[]>()");
+                    }
+                    else if (item.CollectionType.IsDictionaryType())
+                    {
+                        builderContent
+                            .Append("new Dictionary<")
+                            .Append(item.Type.GetDictionaryKeyType())
+                            .Append(", ")
+                            .Append(item.Type.GetDictionaryValueType())
+                            .Append(">()");
+                    }
+                    else if (item.CollectionType.IsCollectionType())
+                    {
+                        builderContent
+                            .Append("new Collection<")
+                            .Append(item.Type.GetEnumerableKeyType())
+                            .Append(">()");
+                    }
+                    else if (item.CollectionType.IsEnumerableType())
                     {
                         builderContent
                             .Append("Enumerable.Empty<")
@@ -197,12 +227,14 @@ namespace Shared.Core
                         break;
                 }
 
-                if (options.GenerateWithMethodForCollections == false && item.CollectionType.IsValidCollection())
+                if (options.GenerateWithMethodForCollections == false)
                 {
                     addMethodWith = false;
                 }
 
-                if (addMethodWith)
+                if (addMethodWith &&
+                    (item.CollectionType.IsValidCollection()
+                    || item.CollectionType.IsValidArrayOrMatrix()))
                 {
                     builderContent
                         .AddWithSummary(options.GenerateSummaryInformation, classInformation, item)
@@ -231,7 +263,41 @@ namespace Shared.Core
                         .AppendLine();
                 }
 
+
                 if (options.GenerateListWithItemMethod
+                    && item.CollectionType.IsValidArrayOrMatrix())
+                {
+                    builderContent
+                        .AddWithArrayOrMatrixItemSummary(options.GenerateSummaryInformation, classInformation, item)
+                        .AppendTab(2)
+                        .Append("public ")
+                        .Append(classInformation.BuilderName)
+                        .Append(" With")
+                        .Append(item.OriginalName.ToTitleCase())
+                        .Append("Item(")
+                        .Append(item.Type.GetArrayType())
+                        .AppendWhenTrue(item.CollectionType.IsMatrix2DimType(), "[]")
+                        .AppendLine(" item)")
+                        .AppendTab(2)
+                        .AppendLine("{")
+                        .AppendTab(3);
+
+                    builderContent
+                        .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
+                        .Append(item.OriginalNameInCamelCase)
+                        .Append(" = ")
+                        .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
+                        .Append(item.OriginalNameInCamelCase)
+                        .AppendLine(".Append(item).ToArray();");
+
+                    builderContent
+                        .AppendTab(3)
+                        .AppendLine("return this;")
+                        .AppendTab(2)
+                        .AppendLine("}")
+                        .AppendLine();
+                }
+                else if (options.GenerateListWithItemMethod
                     && item.CollectionType.IsCollectionButNotKeyValue())
                 {
                     builderContent
@@ -248,7 +314,7 @@ namespace Shared.Core
                         .AppendLine("{")
                         .AppendTab(3);
 
-                    if (item.CollectionType.IsEnumerable())
+                    if (item.CollectionType.IsEnumerableType())
                     {
                         builderContent
                             .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
@@ -274,9 +340,8 @@ namespace Shared.Core
                         .AppendLine("}")
                         .AppendLine();
                 }
-
-                if (options.GenerateListWithItemMethod
-                    && item.CollectionType.IsKeyValue())
+                else if (options.GenerateListWithItemMethod
+                    && item.CollectionType.IsDictionaryType())
                 {
                     builderContent
                         .AddWithCollectionItemSummary(options.GenerateSummaryInformation, classInformation, item)

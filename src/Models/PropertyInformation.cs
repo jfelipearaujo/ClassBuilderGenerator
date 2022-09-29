@@ -1,7 +1,7 @@
-﻿using Shared.Enums;
-using Shared.Helpers;
+﻿using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Helpers;
 
-namespace Shared.Models
+namespace ClassBuilderGenerator.Models
 {
     public class PropertyInformation
     {

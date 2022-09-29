@@ -1,6 +1,6 @@
-﻿using Shared.Enums;
+﻿using ClassBuilderGenerator.Enums;
 
-namespace Shared.Models
+namespace ClassBuilderGenerator.Models
 {
     public class GeneratorOptions
     {

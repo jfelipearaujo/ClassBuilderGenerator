@@ -1,10 +1,10 @@
-﻿using Shared.Constants;
+﻿using ClassBuilderGenerator.Constants;
 
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Shared.Helpers
+namespace ClassBuilderGenerator.Helpers
 {
     public static class CapitalizationHelper
     {

@@ -1,6 +1,6 @@
-﻿using Shared.Models;
+﻿using ClassBuilderGenerator.Models;
 
-namespace Shared.Helpers
+namespace ClassBuilderGenerator.Helpers
 {
     public static class NamespaceHelper
     {

@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
+﻿using ClassBuilderGenerator.Helpers;
+using ClassBuilderGenerator.Models;
 
-using Shared.Helpers;
-using Shared.Models;
+using FluentAssertions;
 
 using System.Collections.Generic;
 

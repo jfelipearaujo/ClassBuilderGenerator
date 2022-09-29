@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Shared.Helpers
+namespace ClassBuilderGenerator.Helpers
 {
     public static class DictionaryHelper
     {

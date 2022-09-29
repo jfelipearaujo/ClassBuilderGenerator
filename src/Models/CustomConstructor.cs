@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Shared.Models
+namespace ClassBuilderGenerator.Models
 {
     public class CustomConstructor
     {
