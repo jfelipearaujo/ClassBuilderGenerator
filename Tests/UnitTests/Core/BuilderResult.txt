@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace ConsoleApp1
 {
@@ -11,14 +12,24 @@ namespace ConsoleApp1
 	/// </summary>
 	public class UserBuilder
 	{
+		private Guid _id;
 		private string _firstName;
 		private string _lastName;
 		private string _email;
 		private string _phone;
+		private bool _isAlive;
 		private int _age;
 		private List<string> _addresses;
+		private IList<string> _otherAddresses;
 		private IEnumerable<int> _ages;
 		private Dictionary<string, int> _phones;
+		private IDictionary<string, int> _otherPhones;
+		private Collection<int> _collection;
+		private ICollection<int> _otherCollection;
+		private int[] _intArray;
+		private int[][] _intMatrix;
+		private bool[] _boolArray;
+		private bool[][] _boolMatrix;
 
 		/// <summary>
 		/// Create a new instance for the <see cref="UserBuilder">UserBuilder</see>
@@ -34,70 +45,25 @@ namespace ConsoleApp1
 		/// <returns>Returns the <see cref="UserBuilder">UserBuilder</see> with the properties reseted</returns>
 		public UserBuilder Reset()
 		{
+			_id = default;
 			_firstName = default;
 			_lastName = default;
 			_email = default;
 			_phone = default;
+			_isAlive = default;
 			_age = default;
 			_addresses = new List<string>();
+			_otherAddresses = new List<string>();
 			_ages = Enumerable.Empty<int>();
 			_phones = new Dictionary<string, int>();
+			_otherPhones = new Dictionary<string, int>();
+			_collection = new Collection<int>();
+			_otherCollection = new Collection<int>();
+			_intArray = Array.Empty<int>();
+			_intMatrix = Array.Empty<int[]>();
+			_boolArray = Array.Empty<bool>();
+			_boolMatrix = Array.Empty<bool[]>();
 
-			return this;
-		}
-
-		/// <summary>
-		/// Set a value of type <see cref="string" /> for the property <paramref name="firstName">firstName</paramref>
-		/// </summary>
-		/// <param name="firstName">A value of type string will the defined for the property</param>
-		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="firstName">firstName</paramref> defined</returns>
-		public UserBuilder WithFirstName(string firstName)
-		{
-			_firstName = firstName;
-			return this;
-		}
-
-		/// <summary>
-		/// Set a value of type <see cref="string" /> for the property <paramref name="lastName">lastName</paramref>
-		/// </summary>
-		/// <param name="lastName">A value of type string will the defined for the property</param>
-		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="lastName">lastName</paramref> defined</returns>
-		public UserBuilder WithLastName(string lastName)
-		{
-			_lastName = lastName;
-			return this;
-		}
-
-		/// <summary>
-		/// Set a value of type <see cref="string" /> for the property <paramref name="email">email</paramref>
-		/// </summary>
-		/// <param name="email">A value of type string will the defined for the property</param>
-		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="email">email</paramref> defined</returns>
-		public UserBuilder WithEmail(string email)
-		{
-			_email = email;
-			return this;
-		}
-
-		/// <summary>
-		/// Set a value of type <see cref="string" /> for the property <paramref name="phone">phone</paramref>
-		/// </summary>
-		/// <param name="phone">A value of type string will the defined for the property</param>
-		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="phone">phone</paramref> defined</returns>
-		public UserBuilder WithPhone(string phone)
-		{
-			_phone = phone;
-			return this;
-		}
-
-		/// <summary>
-		/// Set a value of type <see cref="int" /> for the property <paramref name="age">age</paramref>
-		/// </summary>
-		/// <param name="age">A value of type int will the defined for the property</param>
-		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="age">age</paramref> defined</returns>
-		public UserBuilder WithAge(int age)
-		{
-			_age = age;
 			return this;
 		}
 
@@ -120,6 +86,28 @@ namespace ConsoleApp1
 		public UserBuilder WithAddressesItem(string item)
 		{
 			_addresses.Add(item);
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="IList{T}" /> of <see cref="string" /> for the property <paramref name="otherAddresses">otherAddresses</paramref>
+		/// </summary>
+		/// <param name="otherAddresses">A value of type IList of string will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="otherAddresses">otherAddresses</paramref> defined</returns>
+		public UserBuilder WithOtherAddresses(IList<string> otherAddresses)
+		{
+			_otherAddresses = otherAddresses;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="string"/> will be added to the collection OtherAddresses
+		/// </summary>
+		/// <param name="item">A value of type string will the added to the collection</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the collection OtherAddresses with one more item</returns>
+		public UserBuilder WithOtherAddressesItem(string item)
+		{
+			_otherAddresses.Add(item);
 			return this;
 		}
 
@@ -168,6 +156,160 @@ namespace ConsoleApp1
 		}
 
 		/// <summary>
+		/// Set a value of type <see cref="IDictionary{T,T}" /> of <see cref="string" /> and <see cref="int" /> for the property <paramref name="otherPhones">otherPhones</paramref>
+		/// </summary>
+		/// <param name="otherPhones">A value of type IDictionary of string will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="otherPhones">otherPhones</paramref> defined</returns>
+		public UserBuilder WithOtherPhones(IDictionary<string, int> otherPhones)
+		{
+			_otherPhones = otherPhones;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="string, int"/> will be added to the collection OtherPhones
+		/// </summary>
+		/// <param name="item">A value of type string, int will the added to the collection</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the collection OtherPhones with one more item</returns>
+		public UserBuilder WithOtherPhonesItem(string key, int value)
+		{
+			_otherPhones.Add(key, value);
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="Collection{T}" /> of <see cref="int" /> for the property <paramref name="collection">collection</paramref>
+		/// </summary>
+		/// <param name="collection">A value of type Collection of int will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="collection">collection</paramref> defined</returns>
+		public UserBuilder WithCollection(Collection<int> collection)
+		{
+			_collection = collection;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="int"/> will be added to the collection Collection
+		/// </summary>
+		/// <param name="item">A value of type int will the added to the collection</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the collection Collection with one more item</returns>
+		public UserBuilder WithCollectionItem(int item)
+		{
+			_collection.Add(item);
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="ICollection{T}" /> of <see cref="int" /> for the property <paramref name="otherCollection">otherCollection</paramref>
+		/// </summary>
+		/// <param name="otherCollection">A value of type ICollection of int will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="otherCollection">otherCollection</paramref> defined</returns>
+		public UserBuilder WithOtherCollection(ICollection<int> otherCollection)
+		{
+			_otherCollection = otherCollection;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="int"/> will be added to the collection OtherCollection
+		/// </summary>
+		/// <param name="item">A value of type int will the added to the collection</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the collection OtherCollection with one more item</returns>
+		public UserBuilder WithOtherCollectionItem(int item)
+		{
+			_otherCollection.Add(item);
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="int[]" /> for the property <paramref name="intArray">intArray</paramref>
+		/// </summary>
+		/// <param name="intArray">A value of type int[] will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="intArray">intArray</paramref> defined</returns>
+		public UserBuilder WithIntArray(int[] intArray)
+		{
+			_intArray = intArray;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="int"/> will be added to the array IntArray
+		/// </summary>
+		/// <param name="item">A value of type int will the added to the array</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the array IntArray with one more item</returns>
+		public UserBuilder WithIntArrayItem(int item)
+		{
+			_intArray = _intArray.Append(item).ToArray();
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="int[][]" /> for the property <paramref name="intMatrix">intMatrix</paramref>
+		/// </summary>
+		/// <param name="intMatrix">A value of type int[][] will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="intMatrix">intMatrix</paramref> defined</returns>
+		public UserBuilder WithIntMatrix(int[][] intMatrix)
+		{
+			_intMatrix = intMatrix;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="int[]"/> will be added to the array IntMatrix
+		/// </summary>
+		/// <param name="item">A value of type int will the added to the array</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the array IntMatrix with one more item</returns>
+		public UserBuilder WithIntMatrixItem(int[] item)
+		{
+			_intMatrix = _intMatrix.Append(item).ToArray();
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="bool[]" /> for the property <paramref name="boolArray">boolArray</paramref>
+		/// </summary>
+		/// <param name="boolArray">A value of type bool[] will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="boolArray">boolArray</paramref> defined</returns>
+		public UserBuilder WithBoolArray(bool[] boolArray)
+		{
+			_boolArray = boolArray;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="bool"/> will be added to the array BoolArray
+		/// </summary>
+		/// <param name="item">A value of type bool will the added to the array</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the array BoolArray with one more item</returns>
+		public UserBuilder WithBoolArrayItem(bool item)
+		{
+			_boolArray = _boolArray.Append(item).ToArray();
+			return this;
+		}
+
+		/// <summary>
+		/// Set a value of type <see cref="bool[][]" /> for the property <paramref name="boolMatrix">boolMatrix</paramref>
+		/// </summary>
+		/// <param name="boolMatrix">A value of type bool[][] will the defined for the property</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the property <paramref name="boolMatrix">boolMatrix</paramref> defined</returns>
+		public UserBuilder WithBoolMatrix(bool[][] boolMatrix)
+		{
+			_boolMatrix = boolMatrix;
+			return this;
+		}
+
+		/// <summary>
+		/// An item of type <see cref="bool[]"/> will be added to the array BoolMatrix
+		/// </summary>
+		/// <param name="item">A value of type bool will the added to the array</param>
+		/// <returns>Returns the <see cref="UserBuilder" /> with the array BoolMatrix with one more item</returns>
+		public UserBuilder WithBoolMatrixItem(bool[] item)
+		{
+			_boolMatrix = _boolMatrix.Append(item).ToArray();
+			return this;
+		}
+
+		/// <summary>
 		/// Build a class of type <see cref="User">User</see> with all the defined values
 		/// </summary>
 		/// <returns>Returns a <see cref="User">User</see> class</returns>
@@ -175,14 +317,24 @@ namespace ConsoleApp1
 		{
 			return new User
 			{
+				Id = _id,
 				FirstName = _firstName,
 				LastName = _lastName,
 				Email = _email,
 				Phone = _phone,
+				IsAlive = _isAlive,
 				Age = _age,
 				Addresses = _addresses,
+				OtherAddresses = _otherAddresses,
 				Ages = _ages,
 				Phones = _phones,
+				OtherPhones = _otherPhones,
+				Collection = _collection,
+				OtherCollection = _otherCollection,
+				IntArray = _intArray,
+				IntMatrix = _intMatrix,
+				BoolArray = _boolArray,
+				BoolMatrix = _boolMatrix,
 			};
 		}
 	}

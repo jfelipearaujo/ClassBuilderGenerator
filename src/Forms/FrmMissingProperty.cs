@@ -1,5 +1,5 @@
-﻿using Shared.Helpers;
-using Shared.Models;
+﻿using ClassBuilderGenerator.Helpers;
+using ClassBuilderGenerator.Models;
 
 using System;
 using System.Collections.Generic;

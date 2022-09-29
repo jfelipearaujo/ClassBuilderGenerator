@@ -1,10 +1,10 @@
-﻿using Shared.Enums;
+﻿using ClassBuilderGenerator.Enums;
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Shared.Helpers
+namespace ClassBuilderGenerator.Helpers
 {
     public static class CollectionHelper
     {
@@ -18,6 +18,8 @@ namespace Shared.Helpers
             { "^Collection", CollectionType.Collection },
             { "^IDictionary", CollectionType.IDictionary },
             { "^Dictionary", CollectionType.Dictionary },
+            { @"^([a-zA-Z])*(\[\])$", CollectionType.Array },
+            { @"^([a-zA-Z])*(\[\]\[\])$", CollectionType.Matrix2Dim },
         };
 
         public static CollectionType GetCollectionType(string propertyType)

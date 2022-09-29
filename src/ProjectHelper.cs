@@ -1,10 +1,10 @@
-﻿using EnvDTE;
+﻿using ClassBuilderGenerator.Constants;
+
+using EnvDTE;
 
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-
-using Shared.Constants;
 
 using System;
 using System.IO;

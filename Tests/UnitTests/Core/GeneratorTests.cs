@@ -1,8 +1,8 @@
-﻿using FluentAssertions;
+﻿using ClassBuilderGenerator.Core;
+using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Models;
 
-using Shared.Core;
-using Shared.Enums;
-using Shared.Models;
+using FluentAssertions;
 
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +27,11 @@ namespace UnitTests.Core
                 {
                     new PropertyInformation
                     {
+                        OriginalName = "Id",
+                        Type = "Guid"
+                    },
+                    new PropertyInformation
+                    {
                         OriginalName = "FirstName",
                         Type = "string"
                     },
@@ -47,6 +52,11 @@ namespace UnitTests.Core
                     },
                     new PropertyInformation
                     {
+                        OriginalName = "IsAlive",
+                        Type = "bool"
+                    },
+                    new PropertyInformation
+                    {
                         OriginalName = "Age",
                         Type = "int"
                     },
@@ -57,6 +67,11 @@ namespace UnitTests.Core
                     },
                     new PropertyInformation
                     {
+                        OriginalName = "OtherAddresses",
+                        Type = "IList<string>"
+                    },
+                    new PropertyInformation
+                    {
                         OriginalName = "Ages",
                         Type = "IEnumerable<int>"
                     },
@@ -64,6 +79,41 @@ namespace UnitTests.Core
                     {
                         OriginalName = "Phones",
                         Type = "Dictionary<string, int>"
+                    },
+                    new PropertyInformation
+                    {
+                        OriginalName = "OtherPhones",
+                        Type = "IDictionary<string, int>"
+                    },
+                    new PropertyInformation
+                    {
+                        OriginalName = "Collection",
+                        Type = "Collection<int>"
+                    },
+                    new PropertyInformation
+                    {
+                        OriginalName = "OtherCollection",
+                        Type = "ICollection<int>"
+                    },
+                    new PropertyInformation
+                    {
+                        OriginalName = "IntArray",
+                        Type = "int[]"
+                    },
+                    new PropertyInformation
+                    {
+                        OriginalName = "IntMatrix",
+                        Type = "int[][]"
+                    },
+                    new PropertyInformation
+                    {
+                        OriginalName = "BoolArray",
+                        Type = "bool[]"
+                    },
+                    new PropertyInformation
+                    {
+                        OriginalName = "BoolMatrix",
+                        Type = "bool[][]"
                     },
                 }
             };
@@ -83,7 +133,7 @@ namespace UnitTests.Core
             Generator.GenerateBuilder(classInformation, builder, options);
 
             // Assert
-            var expected = File.ReadAllText(Path.Combine("Core", "BuilderResult.txt"));
+            var expected = File.ReadAllText(Path.Combine("Core", "BuilderResult.txt"), Encoding.UTF8);
 
             var result = builder.ToString();
 

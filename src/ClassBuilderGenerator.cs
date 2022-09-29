@@ -1,16 +1,15 @@
-﻿using ClassBuilderGenerator.Forms;
+﻿using ClassBuilderGenerator.Constants;
+using ClassBuilderGenerator.Core;
+using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Forms;
+using ClassBuilderGenerator.Helpers;
+using ClassBuilderGenerator.Models;
 
 using EnvDTE;
 
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-
-using Shared.Constants;
-using Shared.Core;
-using Shared.Enums;
-using Shared.Helpers;
-using Shared.Models;
 
 using System;
 using System.Collections.Generic;

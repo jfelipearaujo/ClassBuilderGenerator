@@ -1,8 +1,7 @@
-﻿using ClassBuilderGenerator.Options;
+﻿using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Options;
 
 using Microsoft.VisualStudio.Shell;
-
-using Shared.Enums;
 
 using System;
 using System.Diagnostics.CodeAnalysis;

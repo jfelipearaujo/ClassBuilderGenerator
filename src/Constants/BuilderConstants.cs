@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-namespace Shared.Constants
+namespace ClassBuilderGenerator.Constants
 {
     public static class BuilderConstants
     {

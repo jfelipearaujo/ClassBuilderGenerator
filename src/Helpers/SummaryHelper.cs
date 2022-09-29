@@ -1,9 +1,9 @@
-﻿using Shared.Extensions;
-using Shared.Models;
+﻿using ClassBuilderGenerator.Extensions;
+using ClassBuilderGenerator.Models;
 
 using System.Text;
 
-namespace Shared.Helpers
+namespace ClassBuilderGenerator.Helpers
 {
     public static class SummaryHelper
     {
@@ -68,7 +68,7 @@ namespace Shared.Helpers
                 return stringBuilder;
             }
 
-            if (propertyInformation.CollectionType.IsKeyValue())
+            if (propertyInformation.CollectionType.IsDictionaryType())
             {
                 var dictionaryKey = propType.GetDictionaryKeyType();
                 var dictionaryValue = propType.GetDictionaryValueType();
@@ -104,6 +104,23 @@ namespace Shared.Helpers
                 .AppendTab(2).AppendLine("/// </summary>")
                 .AppendTab(2).AppendFormat("/// <param name=\"item\">A value of type {0} will the added to the collection</param>", propertyInformation.Type.GetEnumerableKeyType()).AppendLine()
                 .AppendTab(2).AppendFormat("/// <returns>Returns the <see cref=\"{0}\" /> with the collection {1} with one more item</returns>", classInformation.BuilderName, propertyInformation.OriginalName.ToTitleCase()).AppendLine();
+
+            return stringBuilder;
+        }
+
+        public static StringBuilder AddWithArrayOrMatrixItemSummary(this StringBuilder stringBuilder, bool configEnabled, ClassInformation classInformation, PropertyInformation propertyInformation)
+        {
+            if (!configEnabled)
+                return stringBuilder;
+
+            var isMatrix = propertyInformation.CollectionType.IsMatrix2DimType();
+
+            stringBuilder
+                .AppendTab(2).AppendLine("/// <summary>")
+                .AppendTab(2).AppendFormat("/// An item of type <see cref=\"{0}{1}\"/> will be added to the array {2}", propertyInformation.Type.GetArrayType(), isMatrix ? "[]" : string.Empty, propertyInformation.OriginalName.ToTitleCase()).AppendLine()
+                .AppendTab(2).AppendLine("/// </summary>")
+                .AppendTab(2).AppendFormat("/// <param name=\"item\">A value of type {0} will the added to the array</param>", propertyInformation.Type.GetArrayType()).AppendLine()
+                .AppendTab(2).AppendFormat("/// <returns>Returns the <see cref=\"{0}\" /> with the array {1} with one more item</returns>", classInformation.BuilderName, propertyInformation.OriginalName.ToTitleCase()).AppendLine();
 
             return stringBuilder;
         }

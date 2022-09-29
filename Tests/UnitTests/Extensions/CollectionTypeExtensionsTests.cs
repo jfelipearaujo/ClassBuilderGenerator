@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
+﻿using ClassBuilderGenerator.Enums;
+using ClassBuilderGenerator.Extensions;
 
-using Shared.Enums;
-using Shared.Extensions;
+using FluentAssertions;
 
 using Xunit;
 
@@ -87,7 +87,7 @@ namespace UnitTests.Extensions
             // Arrange
 
             // Act
-            var result = collectionType.IsEnumerable();
+            var result = collectionType.IsEnumerableType();
 
             // Assert
             result.Should().Be(expected);
@@ -129,7 +129,7 @@ namespace UnitTests.Extensions
             // Arrange
 
             // Act
-            var result = collectionType.IsKeyValue();
+            var result = collectionType.IsDictionaryType();
 
             // Assert
             result.Should().Be(expected);

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Shared.Models
+namespace ClassBuilderGenerator.Models
 {
     public class ClassInformation
     {
@@ -12,7 +12,8 @@ namespace Shared.Models
                 "System.Collections.Generic",
                 "System.Linq",
                 "System.Text",
-                "System.Threading.Tasks"
+                "System.Threading.Tasks",
+                "System.Collections.ObjectModel"
             };
 
             Constructors = new Dictionary<string, IEnumerable<PropertyInformation>>();
