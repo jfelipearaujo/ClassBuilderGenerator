@@ -1,8 +1,5 @@
 ﻿using ClassBuilderGenerator.Constants;
 using ClassBuilderGenerator.Core;
-using ClassBuilderGenerator.Enums;
-using ClassBuilderGenerator.Forms;
-using ClassBuilderGenerator.Helpers;
 using ClassBuilderGenerator.Models;
 
 using EnvDTE;
@@ -12,13 +9,10 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -205,10 +199,16 @@ namespace ClassBuilderGenerator
                 var builderContent = new StringBuilder();
                 var classInformation = new ClassInformation();
 
-                CollectClassData(classInformation,
-                    selectedProjectItem,
-                    uiShell,
-                    missingPropertiesBehavior);
+                GeneratorV2.CollectClassData(itemFullPath,
+                    classInformation,
+                    new GeneratorOptions
+                    {
+                        GenerateListWithItemMethod = generateListWithItemMethod,
+                        GenerateSummaryInformation = generateSummaryInformation,
+                        GenerateWithMethodForCollections = generateWithMethodForCollections,
+                        MethodWithGenerator = methodWithGenerator,
+                        AddUnderscorePrefixToTheFields = addUnderscorePrefixToTheFields,
+                    });
 
                 Generator.GenerateBuilder(classInformation,
                    builderContent,
@@ -244,165 +244,6 @@ namespace ClassBuilderGenerator
                     OLEMSGICON.OLEMSGICON_CRITICAL,
                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
                     OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-            }
-        }
-
-        private void CollectClassData(ClassInformation classInformation,
-            ProjectItem projectItem,
-            IVsUIShell uiShell,
-            MissingProperties missingPropertiesBehavior)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            CodeElements codeElements = projectItem.FileCodeModel.CodeElements;
-
-            for (int i = 1; i <= projectItem.FileCodeModel.CodeElements.Count; i++)
-            {
-                CodeElement codeElement = codeElements.Item(i);
-
-                if (codeElement.Kind == vsCMElement.vsCMElementNamespace)
-                {
-                    classInformation.Namespace = codeElement.Name;
-
-                    CodeNamespace codeNamespace = codeElement as CodeNamespace;
-
-                    CodeElements subCodeElements = codeNamespace.Members;
-
-                    for (int j = 1; j <= codeNamespace.Members.Count; j++)
-                    {
-                        codeElement = subCodeElements.Item(j);
-
-                        if (codeElement.IsCodeType && codeElement.Kind != vsCMElement.vsCMElementDelegate)
-                        {
-                            classInformation.Name = codeElement.Name;
-
-                            CodeClass codeClass = codeElement as CodeClass;
-
-                            classInformation.IsPublicAccessible = (codeClass.Access == vsCMAccess.vsCMAccessPublic);
-
-                            for (int k = 1; k <= codeClass.Members.Count; k++)
-                            {
-                                CodeElement subCodeElement = codeClass.Members.Item(k);
-
-                                // Collect constructor data
-                                if (subCodeElement.Name == classInformation.Name
-                                    && subCodeElement.Kind == vsCMElement.vsCMElementFunction)
-                                {
-                                    CodeFunction codeFunction = subCodeElement as CodeFunction;
-
-                                    foreach (CodeFunction item in codeFunction.Overloads)
-                                    {
-                                        var constructor = item.get_Prototype((int)vsCMPrototype.vsCMPrototypeParamNames)
-                                            .Replace(" (", "(");
-
-                                        var constructorProperties = item.get_Prototype((int)(vsCMPrototype.vsCMPrototypeParamTypes
-                                            | vsCMPrototype.vsCMPrototypeParamNames))
-                                            .Replace(" (", "(");
-
-                                        if (!constructor.Contains("()") && !classInformation.Constructors.ContainsKey(constructor))
-                                        {
-                                            var properties = constructorProperties
-                                                .Replace($"{classInformation.Name}(", string.Empty)
-                                                .Replace(")", string.Empty)
-                                                .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                                .Select(x => new PropertyInformation
-                                                {
-                                                    Type = x.TrimStart().Split(' ')[0].RemoveNamespace(classInformation),
-                                                    OriginalName = x.TrimStart().Split(' ')[1]
-                                                });
-
-                                            classInformation.Constructors.Add(constructor, properties);
-                                        }
-                                    }
-                                }
-                            }
-
-                            CodeType codeType = codeElement as CodeType;
-
-                            CodeElements codeTypeCodeElements = codeType.Members;
-
-                            for (int l = 1; l <= codeType.Members.Count; l++)
-                            {
-                                CodeElement codeTypeCodeElement = codeTypeCodeElements.Item(l);
-
-                                if (codeTypeCodeElement.Kind != vsCMElement.vsCMElementProperty)
-                                    continue;
-
-                                var property = codeTypeCodeElement as CodeProperty;
-
-                                if (property.Access != vsCMAccess.vsCMAccessPublic)
-                                    continue;
-
-                                classInformation.Properties.Add(new PropertyInformation
-                                {
-                                    Type = property.Type.AsString.RemoveNamespace(classInformation),
-                                    OriginalName = property.Name
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (classInformation.Constructors.Count > 1)
-            {
-                var frmConstructorSelector = new FrmConstructorSelector(package, uiShell, classInformation.Constructors.Keys.ToList())
-                {
-                    StartPosition = FormStartPosition.CenterScreen
-                };
-
-                frmConstructorSelector.ShowDialog();
-
-                classInformation.CustomConstructor = new CustomConstructor
-                {
-                    Constructor = frmConstructorSelector.SelectedConstructor,
-                    Properties = classInformation.Constructors.FirstOrDefault(x => x.Key == frmConstructorSelector.SelectedConstructor).Value
-                };
-            }
-            else if (classInformation.Constructors.Count == 1)
-            {
-                classInformation.CustomConstructor = new CustomConstructor
-                {
-                    Constructor = classInformation.Constructors.First().Key,
-                    Properties = classInformation.Constructors.First().Value
-                };
-            }
-
-            // Check if all constructor properties are exposed to be created
-            if (classInformation.CustomConstructor != null)
-            {
-                var missingProperties = new List<PropertyInformation>();
-
-                foreach (var item in classInformation.CustomConstructor.Properties)
-                {
-                    if (!classInformation.Properties.Any(x => x.OriginalNameInCamelCase == item.OriginalNameInCamelCase
-                         && x.Type == item.Type))
-                    {
-                        missingProperties.Add(item);
-                    }
-                }
-
-                if (missingProperties.Any()
-                    && missingPropertiesBehavior == MissingProperties.AlwaysAskWhatToDo)
-                {
-                    var frmMissingProperty = new FrmMissingProperty(classInformation.CustomConstructor,
-                        missingProperties)
-                    {
-                        StartPosition = FormStartPosition.CenterScreen
-                    };
-
-                    frmMissingProperty.ShowDialog();
-
-                    if (frmMissingProperty.ForceCreatingOfMissingProperties)
-                    {
-                        classInformation.Properties.AddRange(frmMissingProperty.MissingProperties);
-                    }
-                }
-                else if (missingProperties.Any()
-                    && missingPropertiesBehavior == MissingProperties.AlwaysForceCreationOfMissingProperties)
-                {
-                    classInformation.Properties.AddRange(missingProperties);
-                }
             }
         }
 

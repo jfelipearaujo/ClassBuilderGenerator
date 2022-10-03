@@ -56,11 +56,14 @@
     <Compile Include="ClassBuilderGeneratorPackage.cs" />
     <Compile Include="Constants\BuilderConstants.cs" />
     <Compile Include="Core\Generator.cs" />
+    <Compile Include="Core\GeneratorV2.cs" />
     <Compile Include="Enums\CollectionType.cs" />
     <Compile Include="Enums\MethodWithGenerator.cs" />
     <Compile Include="Enums\MissingProperties.cs" />
     <Compile Include="Extensions\CollectionTypeExtensions.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
+    <Compile Include="Extensions\CodeAnalysisExtensions.cs" />
     <Compile Include="Forms\FrmMissingProperty.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -98,6 +101,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
+      <Version>3.3.3</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
+      <Version>4.3.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" ExcludeAssets="runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

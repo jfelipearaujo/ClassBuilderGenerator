@@ -7,6 +7,7 @@ namespace ClassBuilderGenerator.Models
         public bool GenerateListWithItemMethod { get; set; }
         public bool GenerateSummaryInformation { get; set; }
         public bool GenerateWithMethodForCollections { get; set; }
+        public MissingPropertiesBehavior MissingPropertiesBehavior { get; set; }
         public MethodWithGenerator MethodWithGenerator { get; set; }
         public bool AddUnderscorePrefixToTheFields { get; set; }
     }

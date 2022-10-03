@@ -1,6 +1,6 @@
 ﻿namespace ClassBuilderGenerator.Enums
 {
-    public enum MissingProperties
+    public enum MissingPropertiesBehavior
     {
         AlwaysAskWhatToDo,
         AlwaysForceCreationOfMissingProperties,

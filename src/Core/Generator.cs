@@ -411,8 +411,20 @@ namespace ClassBuilderGenerator.Core
             else
             {
                 builderContent
-                    .Append(classInformation.CustomConstructor.Constructor)
-                    .AppendLine(";");
+                    .Append(classInformation.Name)
+                    .Append("(");
+
+                foreach (var constructorProperty in classInformation.CustomConstructor.Properties)
+                {
+                    builderContent
+                        .AppendWhenTrue(options.AddUnderscorePrefixToTheFields, "_")
+                        .Append(constructorProperty.OriginalName)
+                        .Append(", ");
+                }
+
+                builderContent.Remove(builderContent.Length - 2, 2);
+
+                builderContent.AppendLine(");");
             }
 
             builderContent

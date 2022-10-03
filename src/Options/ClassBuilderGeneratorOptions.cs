@@ -24,9 +24,9 @@ namespace ClassBuilderGenerator.Options
         [Category("Generator")]
         [DisplayName("Behavior for missing properties")]
         [Description("This option configure the behavior when missing properties are detected")]
-        [DefaultValue(MissingProperties.AlwaysAskWhatToDo)]
+        [DefaultValue(MissingPropertiesBehavior.AlwaysAskWhatToDo)]
         [TypeConverter(typeof(EnumConverter))]
-        public MissingProperties MissingProperties { get; set; } = MissingProperties.AlwaysAskWhatToDo;
+        public MissingPropertiesBehavior MissingProperties { get; set; } = MissingPropertiesBehavior.AlwaysAskWhatToDo;
 
         [Category("Generator")]
         [DisplayName("Generate Summary Information")]

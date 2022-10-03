@@ -70,7 +70,7 @@ namespace ClassBuilderGenerator
             }
         }
 
-        public MissingProperties MissingProperties
+        public MissingPropertiesBehavior MissingProperties
         {
             get
             {
