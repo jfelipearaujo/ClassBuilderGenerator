@@ -30,26 +30,13 @@ namespace ClassBuilderGenerator.Extensions
             {
                 foreach (var typeArgumentListNode in listNode.GetChildNodesOfType<TypeArgumentListSyntax>())
                 {
-                    var arguments = new List<string>();
-
-                    foreach (var argument in typeArgumentListNode.Arguments)
-                    {
-                        arguments.Add(argument.ToString());
-                    }
-                    return $"{listNode.Identifier.Text}<{string.Join(", ", arguments)}>";
+                    return $"{listNode.Identifier.Text}<{string.Join(", ", typeArgumentListNode.Arguments.Select(x => x.ToString()))}>";
                 }
             }
 
             foreach (var arrayNode in node.GetChildNodesOfType<ArrayTypeSyntax>())
             {
-                var arrayType = arrayNode.ElementType.ToString();
-
-                foreach (var _ in arrayNode.RankSpecifiers)
-                {
-                    arrayType += "[]";
-                }
-
-                return arrayType;
+                return $"{arrayNode.ElementType}{arrayNode.RankSpecifiers}";
             }
 
             return null;
