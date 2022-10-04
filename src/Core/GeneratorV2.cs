@@ -26,12 +26,9 @@ namespace ClassBuilderGenerator.Core
                 var syntaxTree = CSharpSyntaxTree.ParseText(sourceText);
                 var root = (CompilationUnitSyntax)syntaxTree.GetRoot();
 
-                foreach (var usingDirectiveNode in root.Usings)
+                foreach (var usingNode in root.Usings.SelectMany(x => x.GetChildNodesOfType<QualifiedNameSyntax>()))
                 {
-                    foreach (var usingNode in usingDirectiveNode.GetChildNodesOfType<QualifiedNameSyntax>())
-                    {
-                        classInformation.Usings.AddIfNotExists(usingNode.ToString());
-                    }
+                    classInformation.Usings.AddIfNotExists(usingNode.ToString());
                 }
 
                 foreach (var namespaceNode in root.GetChildNodesOfType<NamespaceDeclarationSyntax>())
@@ -61,18 +58,28 @@ namespace ClassBuilderGenerator.Core
                             classInformation.Constructors.Add(constructorDeclaration, constructorProperties);
                         }
 
+                        foreach (var fieldNode in classNode.GetChildNodesOfType<FieldDeclarationSyntax>())
+                        {
+                            if (fieldNode.Modifiers.IsPrivateAccessible())
+                                continue;
+
+                            classInformation.Properties.Add(new PropertyInformation
+                            {
+                                Type = fieldNode.Declaration.GetPropertyType(),
+                                OriginalName = fieldNode.Declaration.Variables.FirstOrDefault().ToString()
+                            });
+                        }
+
                         foreach (var propertyNode in classNode.GetChildNodesOfType<PropertyDeclarationSyntax>())
                         {
-                            var prop = new PropertyInformation
-                            {
-                                Type = propertyNode.GetPropertyType(),
-                                OriginalName = propertyNode.Identifier.Text
-                            };
-
                             if (propertyNode.Modifiers.IsPrivateAccessible())
                                 continue;
 
-                            classInformation.Properties.Add(prop);
+                            classInformation.Properties.Add(new PropertyInformation
+                            {
+                                Type = propertyNode.GetPropertyType(),
+                                OriginalName = propertyNode.Identifier.Text
+                            });
                         }
                     }
                 }
@@ -115,26 +122,34 @@ namespace ClassBuilderGenerator.Core
                         }
                     }
 
-                    if (missingProperties.Any()
-                        && generatorOptions.MissingPropertiesBehavior == MissingPropertiesBehavior.AlwaysAskWhatToDo)
+                    if (missingProperties.Any())
                     {
-                        var frmMissingProperty = new FrmMissingProperty(classInformation.CustomConstructor,
-                            missingProperties)
+                        switch (generatorOptions.MissingPropertiesBehavior)
                         {
-                            StartPosition = FormStartPosition.CenterScreen
-                        };
+                            case MissingPropertiesBehavior.AlwaysAskWhatToDo:
+                                {
+                                    var frmMissingProperty = new FrmMissingProperty(classInformation.CustomConstructor, missingProperties)
+                                    {
+                                        StartPosition = FormStartPosition.CenterScreen
+                                    };
 
-                        frmMissingProperty.ShowDialog();
+                                    frmMissingProperty.ShowDialog();
 
-                        if (frmMissingProperty.ForceCreatingOfMissingProperties)
-                        {
-                            classInformation.Properties.AddRange(frmMissingProperty.MissingProperties);
+                                    if (frmMissingProperty.ForceCreatingOfMissingProperties)
+                                    {
+                                        classInformation.Properties.AddRange(frmMissingProperty.MissingProperties);
+                                    }
+                                }
+                                break;
+                            case MissingPropertiesBehavior.AlwaysForceCreationOfMissingProperties:
+                                {
+                                    classInformation.Properties.AddRange(missingProperties);
+                                }
+                                break;
+                            case MissingPropertiesBehavior.DoNothing:
+                            default:
+                                break;
                         }
-                    }
-                    else if (missingProperties.Any()
-                        && generatorOptions.MissingPropertiesBehavior == MissingPropertiesBehavior.AlwaysForceCreationOfMissingProperties)
-                    {
-                        classInformation.Properties.AddRange(missingProperties);
                     }
                 }
             }
